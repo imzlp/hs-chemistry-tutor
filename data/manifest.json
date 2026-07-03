@@ -1,0 +1,35 @@
+{
+  "generated_from": "data/knowledge_points",
+  "books": [
+    {
+      "book_id": "tb_bx1",
+      "book_title": "高中化学 必修 第一册",
+      "kp_count": 105,
+      "teaching_count": 105
+    },
+    {
+      "book_id": "tb_bx2",
+      "book_title": "高中化学 必修 第二册",
+      "kp_count": 116,
+      "teaching_count": 116
+    },
+    {
+      "book_id": "tb_xx1",
+      "book_title": "化学反应原理",
+      "kp_count": 102,
+      "teaching_count": 102
+    },
+    {
+      "book_id": "tb_xx2",
+      "book_title": "物质结构与性质",
+      "kp_count": 55,
+      "teaching_count": 55
+    },
+    {
+      "book_id": "tb_xx3",
+      "book_title": "有机化学基础",
+      "kp_count": 184,
+      "teaching_count": 184
+    }
+  ]
+}

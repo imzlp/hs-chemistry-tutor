@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#4f46e5">
+<title>高中化学知识点</title>
+<style>
+  *,*::before,*::after { box-sizing: border-box; }
+  :root {
+    --bg: #f7f8fa; --panel: #ffffff; --border: #eceef1; --line: #f0f1f4;
+    --text: #1a1d24; --sub: #5b6472; --muted: #9aa2b0;
+    --brand: #4f46e5; --brand-2: #6366f1; --brand-soft: #eef0fe;
+    --ok: #10a56a; --ok-soft: #e7f7ef; --warn: #d97706; --warn-soft: #fef3e2;
+    --danger:#e04b59; --danger-soft:#fdeef0;
+    --shadow: 0 1px 2px rgba(16,24,40,.04), 0 4px 16px rgba(16,24,40,.06);
+    --radius: 14px; --sidebar-w: 340px;
+    --safe-t: env(safe-area-inset-top,0px);
+  }
+  html,body { height: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+    font-size: 15px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  button { font-family: inherit; cursor: pointer; }
+
+  /* ---------- top bar ---------- */
+  .topbar { position: sticky; top: 0; z-index: 40; background: rgba(255,255,255,.85);
+    backdrop-filter: saturate(180%) blur(12px); border-bottom: 1px solid var(--border);
+    padding: calc(10px + var(--safe-t)) 18px 10px; display: flex; align-items: center; gap: 12px; }
+  .brand { font-weight: 700; font-size: 16px; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+  .brand .logo { width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center;
+    background: linear-gradient(135deg,var(--brand),var(--brand-2)); color:#fff; font-size:15px; }
+  .bookpick { position: relative; }
+  .bookpick select { appearance: none; -webkit-appearance:none; border: 1px solid var(--border);
+    background: #fff; border-radius: 10px; padding: 8px 30px 8px 12px; font-size: 14px; color: var(--text);
+    max-width: 46vw; text-overflow: ellipsis; }
+  .bookpick::after { content:"▾"; position:absolute; right:11px; top:50%; transform:translateY(-50%);
+    color: var(--muted); pointer-events:none; }
+  .search { flex: 1; min-width: 0; position: relative; }
+  .search input { width: 100%; border: 1px solid var(--border); background: #fff; border-radius: 10px;
+    padding: 8px 12px 8px 34px; font-size: 14px; }
+  .search::before { content:"🔍"; position:absolute; left:10px; top:50%; transform:translateY(-50%); font-size:13px; opacity:.6; }
+  .hamburger { display: none; border: 1px solid var(--border); background:#fff; border-radius:10px;
+    width: 38px; height: 38px; font-size: 17px; flex: none; }
+
+  /* ---------- layout ---------- */
+  .layout { display: flex; height: calc(100dvh - 59px); }
+  .sidebar { width: var(--sidebar-w); flex: none; background: var(--panel); border-right: 1px solid var(--border);
+    overflow-y: auto; padding: 10px 0 40px; }
+  .stat { padding: 6px 18px 10px; color: var(--muted); font-size: 12px; }
+  .detail { flex: 1; overflow-y: auto; }
+  .scrim { display:none; }
+
+  /* ---------- tree ---------- */
+  .chapter { margin: 2px 0; }
+  .chapter > .row { font-weight: 650; color: var(--text); font-size: 14px; }
+  .section > .row { color: var(--sub); font-size: 13px; }
+  .row { display: flex; align-items: center; gap: 8px; padding: 9px 14px; margin: 1px 10px;
+    border-radius: 10px; cursor: pointer; user-select: none; transition: background .12s; }
+  .row:hover { background: var(--line); }
+  .row .caret { color: var(--muted); font-size: 10px; width: 12px; flex: none; transition: transform .18s; }
+  .collapsed > .row .caret { transform: rotate(-90deg); }
+  .collapsed > .children { display: none; }
+  .section { margin-left: 12px; }
+  .kps { margin: 2px 0 6px; }
+  .kp { display: flex; align-items: center; gap: 9px; padding: 8px 14px 8px 34px; margin: 1px 10px;
+    border-radius: 10px; cursor: pointer; font-size: 13.5px; color: var(--sub); transition: background .12s,color .12s; }
+  .kp:hover { background: var(--brand-soft); color: var(--text); }
+  .kp.active { background: linear-gradient(135deg,var(--brand),var(--brand-2)); color:#fff; box-shadow: var(--shadow); }
+  .kp.active .pg { color: rgba(255,255,255,.8); }
+  .kp .name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .kp .pg { color: var(--muted); font-size: 11px; flex: none; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; flex: none; background: #cfd4dc; }
+  .dot.tea { background: var(--ok); }
+  .kp.active .dot { background: rgba(255,255,255,.9); }
+  .mini { font-size: 10px; padding: 1px 6px; border-radius: 20px; background: var(--warn-soft); color: var(--warn); flex:none; }
+
+  /* ---------- detail ---------- */
+  .empty { color: var(--muted); text-align: center; margin-top: 22vh; padding: 0 20px; }
+  .empty .big { font-size: 40px; margin-bottom: 10px; }
+  .dwrap { max-width: 860px; margin: 0 auto; padding: 26px 30px 80px; }
+  .dhead { position: sticky; top: 0; z-index: 20; background: linear-gradient(var(--bg) 70%, rgba(247,248,250,0));
+    padding-top: 4px; margin: -4px 0 0; }
+  .backbtn { display:none; }
+  .crumb { color: var(--muted); font-size: 12.5px; margin-bottom: 6px; display:flex; flex-wrap:wrap; gap:4px; align-items:center; }
+  .crumb .sep { opacity:.5; }
+  .dtitle { font-size: 26px; font-weight: 750; margin: 0 0 12px; letter-spacing: -.01em; }
+  .chips { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 14px; }
+  .chip { font-size: 12px; padding: 4px 11px; border-radius: 20px; background: var(--line); color: var(--sub); white-space:nowrap; }
+  .chip.brand { background: var(--brand-soft); color: var(--brand); font-weight: 600; }
+  .chip.ok { background: var(--ok-soft); color: var(--ok); }
+  .chip.warn { background: var(--warn-soft); color: var(--warn); }
+
+  /* in-page nav */
+  .toc { display: flex; gap: 8px; overflow-x: auto; padding: 4px 0 14px; margin-bottom: 6px;
+    scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .toc::-webkit-scrollbar { display: none; }
+  .toc a { font-size: 13px; padding: 6px 14px; border-radius: 20px; background: #fff; border: 1px solid var(--border);
+    color: var(--sub); text-decoration: none; white-space: nowrap; flex: none; transition: all .12s; }
+  .toc a:hover, .toc a.on { background: var(--brand); color:#fff; border-color: var(--brand); }
+
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 20px 22px; margin-bottom: 16px; box-shadow: var(--shadow); scroll-margin-top: 90px; }
+  .card > h3 { margin: 0 0 16px; font-size: 15px; display: flex; align-items: center; gap: 9px; }
+  .card > h3 .ic { width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center; font-size: 14px; flex:none; }
+  .ic.exp { background: var(--brand-soft); } .ic.tea { background: var(--ok-soft); }
+  .card > h3 .tag { margin-left: auto; font-size: 11px; font-weight: 500; padding: 2px 9px; border-radius: 6px; }
+  .tag.exp { background: var(--brand-soft); color: var(--brand); } .tag.tea { background: var(--ok-soft); color: var(--ok); }
+
+  .field { padding: 12px 0; border-top: 1px solid var(--line); }
+  .field:first-child { padding-top: 0; border-top: none; }
+  .field .lb { font-size: 12px; color: var(--muted); font-weight: 600; margin-bottom: 6px; letter-spacing: .02em; }
+  .field .vl { line-height: 1.75; color: var(--text); }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 0 26px; }
+  .cols .field { border-top: 1px solid var(--line); }
+  .taglist { display: flex; flex-wrap: wrap; gap: 7px; }
+  .taglist span { background: var(--line); padding: 4px 11px; border-radius: 8px; font-size: 13px; color: var(--sub); }
+  ol.seq { margin: 0; padding-left: 0; list-style: none; counter-reset: s; }
+  ol.seq li { counter-increment: s; position: relative; padding: 6px 0 6px 34px; line-height: 1.7; }
+  ol.seq li::before { content: counter(s); position: absolute; left: 0; top: 6px; width: 22px; height: 22px;
+    background: var(--brand-soft); color: var(--brand); border-radius: 7px; display: grid; place-items: center;
+    font-size: 12px; font-weight: 700; }
+  .misc { border: 1px solid var(--danger-soft); background: linear-gradient(var(--danger-soft),#fff);
+    border-radius: 10px; padding: 11px 14px; margin-bottom: 10px; }
+  .misc:last-child { margin-bottom: 0; }
+  .misc .w { color: var(--danger); font-weight: 600; }
+  .misc .r { color: var(--ok); margin-top: 5px; }
+  .hint { color: var(--muted); font-size: 13px; text-align:center; padding: 6px 0; }
+
+  /* prev/next */
+  .pager { display: flex; gap: 12px; margin-top: 8px; }
+  .pager button { flex: 1; border: 1px solid var(--border); background: #fff; border-radius: 12px;
+    padding: 12px 14px; text-align: left; color: var(--sub); box-shadow: var(--shadow); min-width: 0; transition: border-color .12s; }
+  .pager button:hover:not(:disabled) { border-color: var(--brand); color: var(--brand); }
+  .pager button:disabled { opacity: .4; cursor: default; }
+  .pager .dir { font-size: 11px; color: var(--muted); }
+  .pager .nm { font-size: 13.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pager .next { text-align: right; }
+
+  /* ---------- mobile ---------- */
+  @media (max-width: 760px) {
+    body { font-size: 15px; }
+    .hamburger { display: grid; place-items: center; }
+    .brand .txt { display: none; }
+    .bookpick select { max-width: 34vw; }
+    .layout { display: block; height: auto; }
+    .sidebar { position: fixed; top: 0; left: 0; height: 100dvh; width: min(84vw, 360px); z-index: 60;
+      transform: translateX(-102%); transition: transform .26s cubic-bezier(.4,0,.2,1);
+      box-shadow: 0 0 40px rgba(0,0,0,.18); padding-top: calc(12px + var(--safe-t)); }
+    body.nav-open .sidebar { transform: translateX(0); }
+    .scrim { display: block; position: fixed; inset: 0; background: rgba(15,20,30,.42); z-index: 50;
+      opacity: 0; pointer-events: none; transition: opacity .26s; }
+    body.nav-open .scrim { opacity: 1; pointer-events: auto; }
+    .detail { height: auto; overflow: visible; }
+    .dwrap { padding: 16px 16px 60px; }
+    .dhead { position: static; }
+    .backbtn { display: inline-flex; align-items: center; gap: 6px; border: none; background: none;
+      color: var(--brand); font-size: 14px; font-weight: 600; padding: 4px 0 10px; }
+    .dtitle { font-size: 22px; }
+    .card { padding: 16px 16px; border-radius: 12px; }
+    .cols { grid-template-columns: 1fr; gap: 0; }
+    .toc { position: sticky; top: 0; background: var(--bg); padding: 10px 0; z-index: 15; margin: 0 -16px 8px;
+      padding-left: 16px; padding-right: 16px; }
+    .empty { margin-top: 20vh; }
+  }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <button class="hamburger" id="hamb" aria-label="菜单">☰</button>
+  <div class="brand"><span class="logo">🧪</span><span class="txt">化学知识点</span></div>
+  <div class="bookpick"><select id="bookSel" aria-label="选择教材"></select></div>
+  <div class="search"><input id="search" placeholder="搜索知识点…" autocomplete="off"></div>
+</div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="stat" id="stat"></div>
+    <div id="tree"></div>
+  </aside>
+  <main class="detail" id="detail">
+    <div class="empty"><div class="big">📖</div><div>从左侧选择一个知识点开始</div></div>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+
+<script>
+// 纯静态：直接 fetch 相对路径的 JSONL，在浏览器里解析并建树。
+// 数据目录由 manifest.json 描述，方便后续只更新数据、不改前端。
+const DATA_BASE = "data";  // 相对路径，兼容 GitHub Pages 任意子路径
+const state = { book:null, tree:null, flat:[], detail:{}, activeKp:null, filter:"" };
+const cache = {};  // book_id -> {explicit:[], teaching:[], byId:{}, teaId:Set}
+const isMobile = () => window.matchMedia("(max-width: 760px)").matches;
+
+const esc = s => s==null ? "" : String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+
+async function fetchText(p){ const r = await fetch(p); if(!r.ok) throw new Error("加载失败 "+p+" ("+r.status+")"); return r.text(); }
+async function fetchJson(p){ return JSON.parse(await fetchText(p)); }
+function parseJsonl(text){
+  const out = [];
+  for(const line of text.split("\n")){
+    const s = line.trim();
+    if(s){ try{ out.push(JSON.parse(s)); }catch(e){ console.warn("跳过无法解析的行", e); } }
+  }
+  return out;
+}
+
+// 章/节标题中的“第一章/第二节”→ 数字，用于排序
+function numPrefix(title){
+  const cn = "零一二三四五六七八九十";
+  const m = /第([零一二三四五六七八九十百0-9]+)[章节]/.exec(title||"");
+  if(!m) return 9999;
+  const s = m[1];
+  if(/^\d+$/.test(s)) return parseInt(s,10);
+  if(s === "十") return 10;
+  if(s.startsWith("十")) return 10 + cn.indexOf(s[1]);
+  if(s.includes("十")){ const [a,b]=s.split("十"); return cn.indexOf(a)*10 + (b?cn.indexOf(b):0); }
+  return cn.indexOf(s)>=0 ? cn.indexOf(s) : 9999;
+}
+const firstRef = rec => (rec.textbook_refs||[])[0] || {};
+
+// 载入某本书的 explicit + teaching（带缓存）
+async function loadBookData(bookId){
+  if(cache[bookId]) return cache[bookId];
+  const explicit = parseJsonl(await fetchText(`${DATA_BASE}/explicit/${bookId}.explicit.jsonl`));
+  let teaching = [];
+  try { teaching = parseJsonl(await fetchText(`${DATA_BASE}/teaching/${bookId}.teaching.jsonl`)); }
+  catch(e){ /* teaching 可选：某些书可能还没生成 */ }
+  const byId = {}; explicit.forEach(r=> byId[r.kp_id]=r);
+  const teaById = {}; teaching.forEach(t=> teaById[t.source_kp_id]=t);
+  return (cache[bookId] = {explicit, teaching, byId, teaById});
+}
+
+// 从 explicit 记录建“章→节→知识点”树
+function buildTree(bookId, data){
+  const bookTitle = (data.explicit.length ? firstRef(data.explicit[0]).book_title : "") || bookId;
+  const chapters = {};
+  for(const rec of data.explicit){
+    const ref = firstRef(rec);
+    const ch = ref.chapter || "（未标注章节）";
+    const sec = ref.section || "（未标注小节）";
+    const pages = ref.pages || [];
+    const ps = pages.length ? pages[0] : 9999;
+    const chap = chapters[ch] || (chapters[ch] = {title:ch, order:numPrefix(ch), page_start:ps, sections:{}});
+    chap.page_start = Math.min(chap.page_start, ps);
+    const s = chap.sections[sec] || (chap.sections[sec] = {title:sec, order:numPrefix(sec), page_start:ps, kps:[]});
+    s.page_start = Math.min(s.page_start, ps);
+    s.kps.push({ kp_id:rec.kp_id, name:rec.name, confidence:rec.confidence,
+      review_status:rec.review_status, quality_flags:rec.quality_flags||[], pages,
+      has_teaching: rec.kp_id in data.teaById });
+  }
+  const sortKey = o => [o.order, o.page_start, o.title];
+  const cmp = (a,b)=>{ const ka=sortKey(a),kb=sortKey(b);
+    for(let i=0;i<ka.length;i++){ if(ka[i]<kb[i])return -1; if(ka[i]>kb[i])return 1; } return 0; };
+  const chapterList = Object.values(chapters).sort(cmp);
+  for(const chap of chapterList){
+    chap.sections = Object.values(chap.sections).sort(cmp);
+    for(const s of chap.sections)
+      s.kps.sort((a,b)=>{ const pa=a.pages[0]??9999, pb=b.pages[0]??9999;
+        return pa!==pb ? pa-pb : (a.name||"").localeCompare(b.name||""); });
+  }
+  return { book_id:bookId, book_title:bookTitle, kp_count:data.explicit.length,
+    teaching_count:data.teaching.length, chapters:chapterList };
+}
+
+/* ---------- init ---------- */
+async function init(){
+  let manifest;
+  try { manifest = await fetchJson(`${DATA_BASE}/manifest.json`); }
+  catch(e){ document.getElementById("tree").innerHTML =
+      '<div class="hint">未找到 '+DATA_BASE+'/manifest.json<br>请先运行 build_pages.py 生成数据</div>'; return; }
+  const books = manifest.books || [];
+  const sel = document.getElementById("bookSel");
+  sel.innerHTML = books.map(b=>`<option value="${b.book_id}">${esc(b.book_title)}</option>`).join("");
+  sel.onchange = ()=> loadBook(sel.value);
+  document.getElementById("search").oninput = e=>{ state.filter = e.target.value.trim(); renderTree(); };
+  document.getElementById("hamb").onclick = ()=> document.body.classList.toggle("nav-open");
+  document.getElementById("scrim").onclick = ()=> document.body.classList.remove("nav-open");
+  if(books.length) loadBook(books[0].book_id);
+  else document.getElementById("tree").innerHTML = '<div class="hint">manifest 中没有教材</div>';
+}
+
+async function loadBook(id){
+  state.book = id; state.activeKp = null;
+  document.getElementById("tree").innerHTML = '<div class="hint">加载中…</div>';
+  let data;
+  try { data = await loadBookData(id); }
+  catch(e){ document.getElementById("tree").innerHTML = '<div class="hint">'+esc(e.message)+'</div>'; return; }
+  state.tree = buildTree(id, data);
+  state.detail = data;
+  // flat ordered list for prev/next
+  state.flat = [];
+  for(const ch of state.tree.chapters) for(const sec of ch.sections) for(const kp of sec.kps)
+    state.flat.push({...kp, chapter:ch.title, section:sec.title, book_title:state.tree.book_title});
+  const t = state.tree;
+  document.getElementById("stat").innerHTML =
+    `<b>${esc(t.book_title)}</b> · ${t.chapters.length}章 · ${t.kp_count}知识点 · ${t.teaching_count}教学辅助`;
+  renderTree();
+  document.getElementById("detail").innerHTML =
+    '<div class="empty"><div class="big">📖</div><div>从左侧选择一个知识点开始</div></div>';
+}
+
+/* ---------- tree ---------- */
+const match = kp => !state.filter || (kp.name||"").includes(state.filter);
+function renderTree(){
+  const t = state.tree; if(!t) return;
+  let html = "";
+  for(const ch of t.chapters){
+    let secHtml = "";
+    for(const sec of ch.sections){
+      const kps = sec.kps.filter(match);
+      if(state.filter && !kps.length) continue;
+      const kpHtml = kps.map(kp=>{
+        const dot = `<span class="dot ${kp.has_teaching?'tea':''}" title="${kp.has_teaching?'有教学辅助':'无教学辅助'}"></span>`;
+        const rev = kp.review_status==='needs_review' ? '<span class="mini">待审</span>' : '';
+        const pg = kp.pages&&kp.pages.length ? `p${kp.pages.join('-')}` : '';
+        return `<div class="kp ${state.activeKp===kp.kp_id?'active':''}" data-kp="${kp.kp_id}" onclick="selectKp('${kp.kp_id}')">
+          ${dot}<span class="name">${esc(kp.name)}</span>${rev}<span class="pg">${pg}</span></div>`;
+      }).join("");
+      const open = state.filter ? "" : "";
+      secHtml += `<div class="section ${open}">
+        <div class="row" onclick="tog(this.parentNode)"><span class="caret">▼</span>
+          <span style="flex:1">${esc(sec.title)}</span><span class="pg" style="color:var(--muted);font-size:11px">p${sec.page_start}</span></div>
+        <div class="children"><div class="kps">${kpHtml}</div></div></div>`;
+    }
+    if(state.filter && !secHtml) continue;
+    html += `<div class="chapter">
+      <div class="row" onclick="tog(this.parentNode)"><span class="caret">▼</span><span>${esc(ch.title)}</span></div>
+      <div class="children">${secHtml}</div></div>`;
+  }
+  document.getElementById("tree").innerHTML = html || '<div class="hint">无匹配知识点</div>';
+}
+function tog(n){ n.classList.toggle("collapsed"); }
+
+/* ---------- detail ---------- */
+async function selectKp(kpId){
+  state.activeKp = kpId;
+  document.querySelectorAll(".kp").forEach(e=>e.classList.toggle("active", e.dataset.kp===kpId));
+  if(isMobile()) document.body.classList.remove("nav-open");
+  const exp = state.detail.byId[kpId];
+  const tea = state.detail.teaById[kpId] || null;
+  renderDetail(exp, tea);
+  document.getElementById("detail").scrollTop = 0;
+  window.scrollTo(0,0);
+}
+function taglist(a){ return (!a||!a.length) ? '<span style="color:#b8bec8">—</span>'
+  : '<div class="taglist">'+a.map(x=>`<span>${esc(x)}</span>`).join("")+'</div>'; }
+function fld(l,v){ return `<div class="field"><div class="lb">${l}</div><div class="vl">${v}</div></div>`; }
+
+function renderDetail(exp, tea){
+  const d = document.getElementById("detail");
+  if(!exp){ d.innerHTML='<div class="empty">未找到该知识点</div>'; return; }
+  const ref = (exp.textbook_refs||[])[0]||{};
+  const idx = state.flat.findIndex(k=>k.kp_id===exp.kp_id);
+  const prev = idx>0 ? state.flat[idx-1] : null;
+  const next = idx>=0 && idx<state.flat.length-1 ? state.flat[idx+1] : null;
+
+  const chips = [];
+  if(exp.category_path) chips.push(`<span class="chip brand">${esc(exp.category_path.join(' / '))}</span>`);
+  if(exp.confidence!=null) chips.push(`<span class="chip">置信度 ${exp.confidence}</span>`);
+  chips.push(`<span class="chip ${tea?'ok':''}">${tea?'✓ 含教学辅助':'仅显式知识点'}</span>`);
+  if(exp.review_status==='needs_review') chips.push(`<span class="chip warn">待审核</span>`);
+  (exp.quality_flags||[]).forEach(f=>chips.push(`<span class="chip warn">${esc(f)}</span>`));
+
+  // TOC
+  const toc = [{id:'sec-exp',t:'教材定义'}];
+  if(tea){
+    toc.push({id:'sec-teach',t:'教学讲解'});
+    if((tea.student_misconceptions||[]).length) toc.push({id:'sec-misc',t:'易错点'});
+    toc.push({id:'sec-exam',t:'考法'});
+    if((tea.practice_generation_hints||[]).length) toc.push({id:'sec-prac',t:'命题提示'});
+  }
+
+  let h = `<div class="dwrap">
+    <div class="dhead">
+      <button class="backbtn" onclick="document.body.classList.add('nav-open')">‹ 目录</button>
+      <div class="crumb">${esc(ref.book_title)}<span class="sep">›</span>${esc(ref.chapter)}<span class="sep">›</span>${esc(ref.section)}<span class="sep">›</span>p${(ref.pages||[]).join('-')}</div>
+      <h1 class="dtitle">${esc(exp.name)}</h1>
+      <div class="chips">${chips.join("")}</div>
+      <nav class="toc">${toc.map(x=>`<a href="#${x.id}" onclick="jump(event,'${x.id}')">${x.t}</a>`).join("")}</nav>
+    </div>`;
+
+  // explicit card
+  let ex = fld("定义摘要", esc(exp.definition_summary||"—"));
+  if(exp.textbook_scope) ex += fld("教材范围", esc(exp.textbook_scope));
+  if(exp.text_evidence_summary) ex += fld("证据摘要", esc(exp.text_evidence_summary));
+  ex += `<div class="cols">
+    <div>${fld("同义词",taglist(exp.aliases))}${fld("前置知识",taglist(exp.prerequisites))}</div>
+    <div>${fld("相关知识点",taglist(exp.related_points))}${fld("子知识点",taglist(exp.sub_points))}</div></div>`;
+  h += `<section class="card" id="sec-exp"><h3><span class="ic exp">📗</span>教材显式知识点<span class="tag exp">explicit</span></h3>${ex}</section>`;
+
+  if(tea){
+    const te = tea.teacher_explanation||{};
+    let tc = fld("核心讲解", esc(te.core_explanation||"—"));
+    if((te.teaching_sequence||[]).length) tc += fld("讲解顺序", '<ol class="seq">'+te.teaching_sequence.map(s=>`<li>${esc(s)}</li>`).join("")+'</ol>');
+    if(te.classroom_analogy) tc += fld("课堂类比", esc(te.classroom_analogy));
+    h += `<section class="card" id="sec-teach"><h3><span class="ic tea">🎓</span>教学讲解<span class="tag tea">teaching</span></h3>${tc}</section>`;
+
+    if((tea.student_misconceptions||[]).length){
+      const m = tea.student_misconceptions.map(x=>`<div class="misc"><div class="w">✗ ${esc(x.misconception)}</div><div class="r">✓ ${esc(x.correction)}</div></div>`).join("");
+      h += `<section class="card" id="sec-misc"><h3><span class="ic tea">⚠️</span>学生易错点</h3>${m}</section>`;
+    }
+
+    const eu = tea.exam_usage||{};
+    let ec = `<div class="cols"><div>${fld("常见题型",taglist(eu.common_question_types))}</div><div>${fld("典型陷阱",taglist(eu.typical_traps))}</div></div>`;
+    if(eu.difficulty) ec += fld("难度", `<span class="chip">${esc(eu.difficulty)}</span>`);
+    h += `<section class="card" id="sec-exam"><h3><span class="ic tea">📝</span>高考考法</h3>${ec}</section>`;
+
+    if((tea.practice_generation_hints||[]).length){
+      const p = '<ol class="seq">'+tea.practice_generation_hints.map(s=>`<li>${esc(s)}</li>`).join("")+'</ol>';
+      let pc = p;
+      if((tea.quality_flags||[]).length) pc += fld("质量标记", taglist(tea.quality_flags));
+      h += `<section class="card" id="sec-prac"><h3><span class="ic tea">✏️</span>命题提示</h3>${pc}</section>`;
+    }
+  } else {
+    h += `<section class="card"><div class="hint">该知识点暂无教学辅助数据（未生成 teaching）。</div></section>`;
+  }
+
+  // pager
+  h += `<div class="pager">
+    <button ${prev?'':'disabled'} onclick="${prev?`selectKp('${prev.kp_id}')`:''}"><div class="dir">‹ 上一个</div><div class="nm">${prev?esc(prev.name):'—'}</div></button>
+    <button class="next" ${next?'':'disabled'} onclick="${next?`selectKp('${next.kp_id}')`:''}"><div class="dir">下一个 ›</div><div class="nm">${next?esc(next.name):'—'}</div></button>
+  </div>`;
+
+  h += `</div>`;
+  d.innerHTML = h;
+  setupTocSpy();
+}
+
+function jump(e,id){
+  e.preventDefault();
+  const el = document.getElementById(id); if(!el) return;
+  if(isMobile()) el.scrollIntoView({behavior:'smooth',block:'start'});
+  else { const c=document.getElementById('detail'); c.scrollTo({top: el.offsetTop-14, behavior:'smooth'}); }
+}
+function setupTocSpy(){
+  const links = [...document.querySelectorAll('.toc a')];
+  const cont = isMobile() ? window : document.getElementById('detail');
+  const secs = links.map(a=>document.getElementById(a.getAttribute('href').slice(1))).filter(Boolean);
+  const onScroll = ()=>{
+    const base = isMobile() ? 80 : (document.getElementById('detail').scrollTop + 100);
+    let cur = 0;
+    secs.forEach((s,i)=>{ const top = isMobile()? s.getBoundingClientRect().top-80 : s.offsetTop-100;
+      if((isMobile()? top<=0 : s.offsetTop<=base)) cur=i; });
+    links.forEach((a,i)=>a.classList.toggle('on', i===cur));
+  };
+  cont.removeEventListener('scroll', window.__spy||(()=>{}));
+  window.__spy = onScroll; cont.addEventListener('scroll', onScroll, {passive:true}); onScroll();
+}
+
+init().catch(e=>{ document.getElementById("tree").innerHTML='<div class="hint">加载失败: '+esc(e.message)+'</div>'; });
+</script>
+</body>
+</html>
