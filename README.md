@@ -1,4 +1,4 @@
-# 高中化学知识点 · 静态站点
+# 高中化学知识指南
 
 纯静态页面，浏览器直接解析 `data/` 下的 JSONL 并展示，可直接部署到 GitHub Pages。
 
@@ -14,7 +14,7 @@ pages/
     teaching/*.jsonl      各教材教学辅助数据 (kp-teaching-v1)
 ```
 
-## 更新数据（只改数据、不改前端）
+## 更新数据
 
 在项目根目录重新生成 JSONL 后，重跑：
 
@@ -32,15 +32,3 @@ python3 -m http.server -d pages 8000
 ```
 
 （或在项目根用 `python3 scripts/serve_kp.py` 预览实时数据，无需先 build。）
-
-## 部署到 GitHub Pages
-
-任选一种：
-
-- **docs 目录方式**：把本目录改名/复制为仓库根的 `docs/`，push 后在
-  Settings → Pages → Source 选 `main` 分支 `/docs`。
-- **gh-pages 分支方式**：把 `pages/` 内容 push 到 `gh-pages` 分支根目录，
-  Settings → Pages 选该分支。
-
-因为用的是相对路径 `data/...`，部署在 `https://<user>.github.io/<repo>/` 这类
-子路径下也能正常工作。
