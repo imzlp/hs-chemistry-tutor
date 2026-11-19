@@ -18,9 +18,11 @@ DATA_DIR = ROOT / "data"
 CANONICAL_DIR = DATA_DIR / "canonical"
 REVIEW_DIR = DATA_DIR / "review"
 CATALOG_PATH = ROOT / "scripts" / "equation_review_catalog.json"
+EXTRACTION_REVIEW_PATH = ROOT / "scripts" / "equation_extraction_review.json"
 CONCEPTS_PATH = CANONICAL_DIR / "concepts.jsonl"
 OCCURRENCES_PATH = CANONICAL_DIR / "occurrences.jsonl"
 OUTPUT_PATH = REVIEW_DIR / "equation-review.jsonl"
+AUDIT_PATH = REVIEW_DIR / "equation-extraction-review.jsonl"
 MANIFEST_PATH = REVIEW_DIR / "manifest.json"
 
 
@@ -99,11 +101,15 @@ def main() -> None:
     args = parser.parse_args()
 
     catalog = load_json(CATALOG_PATH)
+    extraction_review = load_json(EXTRACTION_REVIEW_PATH)
     reviewed_at = catalog["reviewed_at"]
     concepts = read_jsonl(CONCEPTS_PATH)
     occurrences = read_jsonl(OCCURRENCES_PATH)
     concept_names = {
         concept["concept_id"]: concept["canonical_name"] for concept in concepts
+    }
+    concept_id_by_name = {
+        concept["canonical_name"]: concept["concept_id"] for concept in concepts
     }
     occurrences_by_concept: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for occurrence in occurrences:
@@ -268,6 +274,75 @@ def main() -> None:
             "所有页码继承自 AI 教材摘要，未核对出版社、版次、ISBN、版权页或印刷原文。",
         ],
     }
+    equation_review_ids_by_concept: dict[str, list[str]] = defaultdict(list)
+    equation_displays_by_concept: dict[str, list[str]] = defaultdict(list)
+    for record in records:
+        for concept_id in record["concept_ids"]:
+            equation_review_ids_by_concept[concept_id].append(record["review_id"])
+            equation_displays_by_concept[concept_id].append(record["display"])
+
+    audit_records: list[dict[str, Any]] = []
+    for concept_name, audit in extraction_review["concepts"].items():
+        concept_id = concept_id_by_name.get(concept_name)
+        if concept_id is None:
+            raise ValueError(
+                f"equation extraction review references unknown concept: "
+                f"{concept_name}"
+            )
+        if not audit.get("examples"):
+            raise ValueError(
+                f"{concept_name}: extraction review has no examples"
+            )
+        audit_records.append(
+            {
+                "schema_version": "chem-equation-extraction-review-v1",
+                "extraction_review_id": stable_id("eer_", concept_id),
+                "concept_id": concept_id,
+                "concept_name": concept_name,
+                "outcome": audit["outcome"],
+                "classification": audit["classification"],
+                "original_problem": audit["original_problem"],
+                "resolution": audit["resolution"],
+                "examples": audit["examples"],
+                "canonical_equation_review_ids": sorted(
+                    set(equation_review_ids_by_concept.get(concept_id, []))
+                ),
+                "canonical_equations": list(
+                    dict.fromkeys(
+                        equation_displays_by_concept.get(concept_id, [])
+                    )
+                ),
+                "source_occurrence_ids": sorted(
+                    occurrence["occurrence_id"]
+                    for occurrence in occurrences
+                    if occurrence["concept_id"] == concept_id
+                ),
+                "review_status": "machine_reviewed",
+                "human_verified": False,
+                "evidence_status": "ai_textbook_summary_unverified",
+                "reviewed_at": extraction_review["reviewed_at"],
+            }
+        )
+    audit_concept_ids = [record["concept_id"] for record in audit_records]
+    if len(audit_concept_ids) != len(set(audit_concept_ids)):
+        raise ValueError("duplicate concept in equation extraction review")
+    audit_records.sort(key=lambda record: record["concept_id"])
+
+    manifest["extraction_review"] = {
+        "concepts": len(audit_records),
+        "outcomes": dict(
+            sorted(Counter(record["outcome"] for record in audit_records).items())
+        ),
+        "classifications": dict(
+            sorted(
+                Counter(
+                    record["classification"] for record in audit_records
+                ).items()
+            )
+        ),
+        "human_verified": False,
+        "evidence_status": "ai_textbook_summary_unverified",
+    }
 
     if args.no_write:
         print(json.dumps(manifest, ensure_ascii=False, indent=2))
@@ -275,6 +350,7 @@ def main() -> None:
 
     REVIEW_DIR.mkdir(parents=True, exist_ok=True)
     OUTPUT_PATH.write_text(format_jsonl(records), encoding="utf-8")
+    AUDIT_PATH.write_text(format_jsonl(audit_records), encoding="utf-8")
     MANIFEST_PATH.write_text(
         json.dumps(manifest, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",

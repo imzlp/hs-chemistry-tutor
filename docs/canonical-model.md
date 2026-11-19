@@ -65,6 +65,27 @@ kp_id != concept_id
 `external_prior` 不是“找不到就算外部”。只有经过判断、确实属于初中课程、
 其他学科或当前课程表未覆盖的前置知识才使用。
 
+### relation review（关系标签审核）
+
+文件：`data/review/relation-review.jsonl`
+
+每个唯一 `target_label` 一条记录，记录该标签下全部关系边的处置结论：
+
+- `reviewed_mapping`：经过人工规则确认的规范概念映射；
+- `reviewed_external_prior`：明确属于当前概念表之外的前置知识；
+- `reviewed_missing_concept`：当前没有对应概念，缺口保留；
+- `reviewed_aggregate_label`：来源标签是多个知识点或范围的聚合；
+- `reviewed_too_broad`：标签过于宽泛，不能唯一映射；
+- `automatic_alias_or_exact_match`：由精确名称、唯一别名或保守规范化规则解析；
+- `self_reference`：全部边都指向来源概念自身，不能生成自环边；
+- `partially_self_referential`：同一标签既有可解析边，也有自环边；保留有效边，
+  剔除自环；
+- `ambiguous`：存在多个候选，拒绝任意选择；
+- `unreviewed_gap`：尚未找到唯一且语义等价的规范概念。
+
+`partially_self_referential` 不能算作缺口，也不能因为存在自环就把同一标签下
+有效的外部关系全部丢弃。
+
 ### confusable pair（易混概念对照）
 
 文件：`data/canonical/confusable-pairs.jsonl`
@@ -83,8 +104,6 @@ kp_id != concept_id
 
 只要 concept 还有开放问题，就进入队列。问题代码包括：
 
-- `formula_extraction_unverified`；
-- `equation_extraction_unverified`；
 - `boundary_extraction_unverified`；
 - `unresolved_relation`；
 - `ambiguous_relation`；
@@ -92,7 +111,9 @@ kp_id != concept_id
 - `ambiguous_alias_omitted`；
 - `scope_inferred_from_subtopics`（来源缺少可用 scope，按 subtopics 推断）；
 - `scope_generic`（来源缺少可用 scope 和 subtopics，只保留概念类型级别说明）；
-- `external_prior_relation`（属于外部前置知识，仍建议人工确认其教学定位）。
+- `external_prior_relation`（属于外部前置知识，仍建议人工确认其教学定位）；
+- `formula_textbook_evidence_unverified`（公式已机器审核，但教材原文未核验）；
+- `equation_textbook_evidence_unverified`（方程已机器审核，但教材原文未核验）。
 
 队列中的概念不是“不可用”，而是“不能被当成已审定的标准答案”。
 
@@ -177,7 +198,10 @@ kp_id != concept_id
 - `quality_flags`：来自受控词表的分流标记；
 - `corrections`：P0/P1/P2 或 C1 修订记录；
 - `open_issues`：仍需处理的问题；
-- `issue_details`：问题代码、严重程度和说明。
+- `issue_details`：问题代码、严重程度和说明；
+- `formula_review_ids`：该概念引用的 `fmr_...` 化学式审核记录；
+- `formula_validation_status`：`not_applicable`、`machine_classified` 或
+  `curated_corrected`；
 - `equation_review_ids`：该概念引用的 `eqr_...` 方程审核记录；
 - `equation_validation_status`：方程只经机器原子/电荷校验、只经结构审查、
   两者兼有，或尚未审核。
@@ -191,21 +215,26 @@ kp_id != concept_id
 - `machine_mass_charge_checked` 只表示组成式的原子与净电荷计量自洽；
 - `structural_reviewed` 表示聚合物或结构片段已做结构审查，不能配平；
 - `machine_and_structural_reviewed` 表示该概念同时包含两类方程；
+- `reviewed_no_equation` 表示已完成抽取复核，确认该概念没有需要保留的反应方程；
 - `not_reviewed` 表示尚未进入方程专项审核。
 
 所有已审核方程仍带 `equation_textbook_evidence_unverified`，因为教材版本、
-ISBN、原文和精确引文尚未核验。
+ISBN、原文和精确引文尚未核验。所有含公式的概念仍带
+`formula_textbook_evidence_unverified`，因为公式审核只覆盖语法、类型和概念
+范围。
 
 ## 6. 当前未完成项
 
-- 931 条关系仍未解析；
+- 865 条关系仍未解析；
 - 1 条关系存在多个候选；
-- 28 条来源关系为自引用；
-- 197 条关系被标为外部前置；
+- 29 条来源关系为自引用；
+- 228 条关系被标为外部前置；
+- 1371 个关系标签已全部建立处置台账，但其中 776 个仍是 `unreviewed_gap`；
+- 10 个标签同时含有效关系和自环，已标为 `partially_self_referential`；
 - 75 个概念的 scope 由 subtopics 推断，已进入复核队列；
 - 当前没有保留旧版统一占位 scope；
-- 公式尚未完成结构化验证；
-- 107 条电化学/有机方程已完成机器或结构审查，但仍未认证条件、机理和教材原文；
+- 754 条公式已完成机器语法、类型和角色分类，但仍未认证物质身份和教材写法；
+- 122 条方程已完成机器或结构审查，但仍未认证条件、机理和教材原文；
 - 教材引用仍缺少版本、ISBN、原文摘录和逐句定位；
 - 所有概念都需要高中化学教师按指定教材版本复核。
 
@@ -219,4 +248,6 @@ ISBN、原文和精确引文尚未核验。
 5. 讲解类比时同时展示 `analogy.limitations`。
 6. 任何教材引用都先查 `data/review/textbook-locator.jsonl`，不得把 AI 摘要页码
    显示为已核验教材原文。
-7. 任何自动生成的结论都应附带来源 occurrence 和 `human_verified` 状态。
+7. 使用化学式时读取 `data/review/formula-review.jsonl`，不要把 `formulas`
+   中的任一项自动当作该概念的中心物质。
+8. 任何自动生成的结论都应附带来源 occurrence 和 `human_verified` 状态。

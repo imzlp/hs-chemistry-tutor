@@ -1,0 +1,177 @@
+{
+  "version": 1,
+  "reviewed_at": "2026-11-19",
+  "description": "按概念上下文修正化学式表示；formula 保留用于检索的 ASCII 形式，role 说明它在当前概念中的语义。",
+  "overrides": {
+    "烷烃的定义与通式": {
+      "reason": "原抽取把通式 CnH2n+2 截断为 CnH，并把 Cn 误读为共价半径/元素符号。",
+      "entries": [
+        {
+          "formula": "CnH2n+2",
+          "role": "class_general_formula",
+          "note": "链状饱和烷烃的通式，n≥1；不适用于环烷烃。"
+        },
+        {
+          "formula": "CH4",
+          "role": "representative_substance",
+          "note": "最简单的烷烃。"
+        }
+      ]
+    },
+    "烯烃的结构特征与杂化方式": {
+      "reason": "原抽取把单烯烃通式 CnH2n 截断为 CnH。",
+      "entries": [
+        {
+          "formula": "CnH2n",
+          "role": "class_general_formula",
+          "note": "单烯烃的通式，n≥2；不适用于环烷烃等其他不饱和烃。"
+        },
+        {
+          "formula": "C2H4",
+          "role": "representative_substance",
+          "note": "乙烯是本节讨论 sp² 杂化和碳碳双键的代表物。"
+        }
+      ]
+    },
+    "醛基与醛类的定义及通式": {
+      "reason": "原抽取把饱和一元醛通式 CnH2nO 截断为 CnH。",
+      "entries": [
+        {
+          "formula": "CnH2nO",
+          "role": "class_general_formula",
+          "note": "饱和一元醛的通式，n≥1；不能推广到二元醛或其他不饱和醛。"
+        },
+        {
+          "formula": "HCHO",
+          "role": "representative_substance",
+          "note": "甲醛是最简单的醛，n=1 时符合该通式。"
+        }
+      ]
+    },
+    "同系物概念": {
+      "reason": "原抽取把链状烷烃通式 CnH2n+2 截断为 CnH。",
+      "entries": [
+        {
+          "formula": "CnH2n+2",
+          "role": "class_general_formula",
+          "note": "用于说明同系物组成上的规律性差异，仅适用于链状饱和烷烃。"
+        },
+        {
+          "formula": "C3H6",
+          "role": "contrast_example",
+          "note": "作为与烷烃通式不同的不饱和烃示例，不能据此把 CnH2n 当作烷烃通式。"
+        },
+        {
+          "formula": "C4H8",
+          "role": "contrast_example",
+          "note": "与 C3H6 构成同系物示例，但存在同分异构体，不能只看分子式判断结构。"
+        }
+      ]
+    },
+    "糖类的定义与分类": {
+      "reason": "原抽取把纤维素等多糖的重复单元写成裸 C6H10O5，并混入 H2O、CH3COOH、HCHO 等重复/噪声项；鼠李糖应写作 C6H12O5，不能与脱氧核糖 C5H10O4 混淆。",
+      "entries": [
+        {
+          "formula": "C6H12O5",
+          "role": "contrast_example",
+          "note": "鼠李糖的分子式，是不能用 Cm(H2O)n 通式概括的糖类反例。"
+        },
+        {
+          "formula": "C5H10O4",
+          "role": "contrast_example",
+          "note": "脱氧核糖的分子式，是糖类但不符合 Cm(H2O)n 通式；不要写成鼠李糖。"
+        },
+        {
+          "formula": "(C6H10O5)n",
+          "role": "representative_substance",
+          "note": "淀粉、纤维素等多糖的重复单元表示；n 表示聚合度，不能写成裸 C6H10O5。"
+        },
+        {
+          "formula": "CH2O",
+          "role": "contrast_example",
+          "note": "甲醛的分子式，符合 Cm(H2O)n 但不是糖类。"
+        },
+        {
+          "formula": "C2H4O2",
+          "role": "contrast_example",
+          "note": "乙酸的分子式，符合 Cm(H2O)n 但不是糖类。"
+        }
+      ]
+    },
+    "淀粉与纤维素的结构及水解": {
+      "reason": "淀粉和纤维素的实验式/重复单元必须以聚合度表示；裸 C6H10O5 会丢失高分子语义。",
+      "entries": [
+        {
+          "formula": "(C6H10O5)n",
+          "role": "representative_substance",
+          "note": "淀粉和纤维素的重复单元实验式；n 不同且均为聚合度分布，不是单一分子。"
+        }
+      ]
+    },
+    "单糖、寡糖和多糖的具体实例": {
+      "reason": "原抽取把多糖的高分子重复单元写成裸 C6H10O5。",
+      "entries": [
+        {
+          "formula": "(C6H10O5)n",
+          "role": "representative_substance",
+          "note": "淀粉、纤维素和糖原等多糖的重复单元；具体聚合度不是固定值。"
+        }
+      ]
+    },
+    "纤维素的广泛用途": {
+      "reason": "原抽取把纤维素水解产物葡萄糖 C6H12O6 当作纤维素本身的中心化学式；本概念的中心物质应表示为 (C6H10O5)n。",
+      "entries": [
+        {
+          "formula": "(C6H10O5)n",
+          "role": "representative_substance",
+          "note": "纤维素是葡萄糖单元通过 β-1,4-糖苷键连接的高分子。"
+        }
+      ]
+    },
+    "酸碱指示剂变色原理": {
+      "reason": "HIn 是指示剂酸式的通用记号，不是具体的氢化铟分子式。",
+      "entries": [
+        {
+          "formula": "HIn",
+          "role": "indicator_equilibrium",
+          "note": "HIn 与 In⁻ 分别表示指示剂的酸式和碱式；In 不是这里的元素铟。"
+        }
+      ]
+    },
+    "钠与水的反应": {
+      "reason": "原抽取把后续硫酸铜溶液情境中的 CuSO4、Na2SO4 混入中心反应式，且遗漏了 Na、Na+、OH− 等离子/单质形式。",
+      "entries": [
+        {
+          "formula": "Na",
+          "role": "representative_substance",
+          "note": "反应物，活泼金属单质。"
+        },
+        {
+          "formula": "H2O",
+          "role": "representative_substance",
+          "note": "反应物，同时是介质。"
+        },
+        {
+          "formula": "NaOH",
+          "role": "representative_substance",
+          "note": "分子方程式中的强碱产物。"
+        },
+        {
+          "formula": "H2",
+          "role": "representative_substance",
+          "note": "气体产物。"
+        },
+        {
+          "formula": "Na+",
+          "role": "representative_substance",
+          "note": "离子方程式中的 spectator/product ion；Na+不参与电子转移。"
+        },
+        {
+          "formula": "OH-",
+          "role": "representative_substance",
+          "note": "离子方程式中的产物。"
+        }
+      ]
+    }
+  }
+}

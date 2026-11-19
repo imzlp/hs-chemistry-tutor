@@ -21,29 +21,42 @@ data/
     relation-gaps.jsonl     未解析/外部/歧义关系聚合
     manifest.json           模型统计与质量状态
   review/
-    equation-review.jsonl           电化学与有机方程逐条审核
+    formula-review.jsonl            概念范围内化学式逐条审核
+    formula-review-manifest.json    化学式审核统计与限制
+    equation-review.jsonl           高中化学方程逐条审核
+    equation-extraction-review.jsonl 方程抽取问题逐概念复核
+    relation-review.jsonl           关系标签逐条处置台账
     textbook-locator.jsonl          教材逐条待核验定位台账
-    manifest.json                   方程审核统计
+    manifest.json                   方程与抽取审核统计
     textbook-locator-manifest.json  教材版本与 ISBN 阻塞状态
   schema/
     chem-concept-v1.schema.json
     chem-confusable-pair-v1.schema.json
+    chem-formula-review-v1.schema.json
     chem-equation-review-v1.schema.json
+    chem-equation-extraction-review-v1.schema.json
+    chem-relation-review-v1.schema.json
     chem-textbook-locator-v1.schema.json
 docs/
   canonical-model.md
   content-quality-audit.md
   equation-review.md
+  formula-review.md
   textbook-verification.md
 scripts/
   build_canonical_model.py
+  build_formula_review.py
   build_equation_review.py
   build_textbook_locator.py
   validate_canonical_model.py
   apply_content_overrides.py
+  formula_utils.py
   equation_balance.py
+  formula_content_overrides.json
   equation_review_catalog.json
+  equation_extraction_review.json
   equation_content_overrides.json
+  relation_review_catalog.json
   canonical_confusable_pairs.json
 ```
 
@@ -53,7 +66,12 @@ scripts/
 - `data/canonical` 是面向教学系统的规范概念层，使用 `concept_id`；
 - 一个规范概念可以对应多条教材出现记录，不能把 `kp_id` 当作唯一概念 ID；
 - `data/canonical/review-queue.jsonl` 明确列出仍需人工复核的概念；
+- `data/review/formula-review.jsonl` 逐概念记录化学式语法、表示类型和角色，
+  不把概念范围内出现的化学式自动当作中心物质；
 - `data/review/equation-review.jsonl` 区分机器原子/电荷校验与结构审查；
+- `data/review/equation-extraction-review.jsonl` 保留方程抽取问题的逐概念处置；
+- `data/review/relation-review.jsonl` 对每个关系标签给出映射、外部前置、自引用
+  或真实缺口的显式结论；
 - `data/review/textbook-locator.jsonl` 逐条保留页码，但不伪造版本、ISBN 或原文；
 - `human_verified=false`、`evidence_status=ai_textbook_summary_unverified`
   表示当前只是机器辅助审校，不是专家审定。
@@ -61,7 +79,8 @@ scripts/
 模型字段、关系状态和教学使用边界见
 [`docs/canonical-model.md`](docs/canonical-model.md)，数据质量基线见
 [`docs/content-quality-audit.md`](docs/content-quality-audit.md)。方程复核边界见
-[`docs/equation-review.md`](docs/equation-review.md)，教材定位状态见
+[`docs/equation-review.md`](docs/equation-review.md)，化学式审核规则见
+[`docs/formula-review.md`](docs/formula-review.md)，教材定位状态见
 [`docs/textbook-verification.md`](docs/textbook-verification.md)。
 
 ## 更新与校验
@@ -76,7 +95,9 @@ python3 scripts/apply_content_overrides.py \
 python3 scripts/apply_content_overrides.py \
   --overrides scripts/p2_content_overrides.json --write
 python3 scripts/build_canonical_model.py
+python3 scripts/build_formula_review.py
 python3 scripts/build_equation_review.py
+python3 scripts/build_canonical_model.py
 python3 scripts/build_textbook_locator.py
 python3 scripts/build_canonical_model.py
 python3 scripts/validate_canonical_model.py --strict-schema
@@ -98,7 +119,9 @@ python3 -m http.server 8000
 ## 使用边界
 
 当前数据适合做检索、课程编排、错题诊断和教学文案生成的候选底座，不应直接
-作为自动答疑的唯一事实来源。107 条方程已完成机器原子/电荷校验或结构审查，
-但状态符号、反应条件、机理和教材原文仍未认证；573 条教材定位记录的出版社、
-版次、ISBN 和原文均为空。上述内容仍需高中化学教师逐项复核后才能用于正式
-教学。
+作为自动答疑的唯一事实来源。754 条概念范围内化学式已完成机器语法与角色
+分类，其中 10 个概念的 24 条记录经过规则修订；122 条方程中 105 条通过
+原子/电荷机器校验，17 条只做结构审查；1371 个关系标签已逐条处置，但仍有
+776 个标签属于真实未审阅缺口，865 条关系边尚未解析。573 条教材定位记录的
+出版社、版次、ISBN 和原文仍为空。上述内容仍需高中化学教师逐项复核后才能
+用于正式教学。

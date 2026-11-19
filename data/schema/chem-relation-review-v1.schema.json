@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/schemas/chem-relation-review-v1.schema.json",
+  "title": "High-school chemistry relation-label review",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "review_id",
+    "target_label",
+    "review_disposition",
+    "review_rationale",
+    "review_priority",
+    "relation_count",
+    "relation_types",
+    "resolution_statuses",
+    "target_concept_ids",
+    "target_concept_names",
+    "candidate_names",
+    "source_concept_ids",
+    "source_occurrence_ids",
+    "review_status",
+    "human_verified",
+    "evidence_status",
+    "reviewed_at"
+  ],
+  "properties": {
+    "schema_version": {"const": "chem-relation-review-v1"},
+    "review_id": {"type": "string", "pattern": "^rvr_[0-9a-f]{12}$"},
+    "target_label": {"type": "string", "minLength": 1},
+    "review_disposition": {
+      "enum": [
+        "reviewed_mapping",
+        "reviewed_external_prior",
+        "reviewed_missing_concept",
+        "reviewed_aggregate_label",
+        "reviewed_too_broad",
+        "automatic_alias_or_exact_match",
+        "self_reference",
+        "partially_self_referential",
+        "ambiguous",
+        "unreviewed_gap"
+      ]
+    },
+    "review_rationale": {"type": "string", "minLength": 1},
+    "review_priority": {"enum": ["high", "medium", "low"]},
+    "relation_count": {"type": "integer", "minimum": 1},
+    "relation_types": {
+      "type": "array",
+      "items": {"enum": ["prerequisites", "related"]},
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "resolution_statuses": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "resolved",
+          "unresolved",
+          "ambiguous",
+          "self_reference",
+          "external_prior"
+        ]
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "target_concept_ids": {
+      "type": "array",
+      "items": {"type": "string", "pattern": "^chem_[0-9a-f]{12}$"},
+      "uniqueItems": true
+    },
+    "target_concept_names": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "uniqueItems": true
+    },
+    "candidate_names": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "uniqueItems": true
+    },
+    "source_concept_ids": {
+      "type": "array",
+      "items": {"type": "string", "pattern": "^chem_[0-9a-f]{12}$"},
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "source_occurrence_ids": {
+      "type": "array",
+      "items": {"type": "string", "pattern": "^kp_[0-9a-f]{12}$"},
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "review_status": {"const": "machine_reviewed"},
+    "human_verified": {"const": false},
+    "evidence_status": {"const": "ai_textbook_summary_unverified"},
+    "reviewed_at": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    }
+  }
+}

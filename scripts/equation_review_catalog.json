@@ -1399,6 +1399,268 @@
           "note": "以邻羟基苯甲酸表示水杨酸。"
         }
       ]
+    },
+    {
+      "set_id": "eq_water_autoionization",
+      "domain": "equilibrium_chemistry",
+      "concept_ids": ["chem_13a63c12cd91"],
+      "title": "水的自偶电离",
+      "medium": "aqueous",
+      "conditions": ["纯水或稀水溶液", "常温用于教学示例；Kw随温度变化"],
+      "notes": [
+        "H2O ⇌ H+ + OH- 与 2H2O ⇌ H3O+ + OH- 是同一种质子转移平衡的两种等价写法。",
+        "Kw 是平衡常数表达式，不是独立反应；室温近似值不能无条件外推到其他温度。"
+      ],
+      "ambiguity_notes": [
+        "中学常用 H+ 简写；严格的水合形式是 H3O+，二者不能同时当作彼此独立的两个反应。"
+      ],
+      "equations": [
+        {
+          "role": "autoionization_simplified",
+          "display": "H₂O(l) ⇌ H⁺(aq) + OH⁻(aq)",
+          "balance": "H2O(l) ⇌ H^+(aq) + OH^-(aq)",
+          "note": "最常用的简化自偶电离表示。"
+        },
+        {
+          "role": "autoionization_proton_transfer",
+          "display": "2H₂O(l) ⇌ H₃O⁺(aq) + OH⁻(aq)",
+          "balance": "2H2O(l) ⇌ H3O^+(aq) + OH^-(aq)",
+          "note": "突出质子从一分子水转移到另一分子水的等价表示。"
+        }
+      ]
+    },
+    {
+      "set_id": "eq_ammonia_synthesis_equilibrium",
+      "domain": "equilibrium_chemistry",
+      "concept_ids": ["chem_51f37b389c4e", "chem_d5349e1c94c2"],
+      "title": "合成氨的可逆平衡",
+      "medium": "gas_solid_catalyst",
+      "conditions": ["高温高压", "铁触媒催化", "N2与H2按化学计量比投料仅是理想讨论条件"],
+      "notes": [
+        "合成氨是放热、气体分子数减少的可逆反应。",
+        "温度、压强和产物移出对平衡与速率的影响不能混为同一结论。",
+        "工业转化率受动力学、循环和分离流程影响，不能仅由平衡式直接算出。"
+      ],
+      "ambiguity_notes": [
+        "实际合成氨使用多段反应、循环气和产物分离；本式只表示净化学平衡。"
+      ],
+      "equations": [
+        {
+          "role": "equilibrium_reaction",
+          "display": "N₂(g) + 3H₂(g) ⇌ 2NH₃(g)　ΔH < 0",
+          "balance": "N2(g) + 3H2(g) ⇌ 2NH3(g)",
+          "note": "ΔH<0 是条件信息，不参与质量与电荷配平。"
+        }
+      ]
+    },
+    {
+      "set_id": "eq_iron_thiocyanate_complex_equilibrium",
+      "domain": "equilibrium_chemistry",
+      "concept_ids": ["chem_52b65a03e93a"],
+      "title": "铁离子与硫氰酸根配位平衡",
+      "medium": "aqueous_acidic",
+      "conditions": ["Fe3+与SCN-在水溶液中", "通常需酸性条件抑制Fe3+水解", "观察血红色加深或变浅"],
+      "notes": [
+        "显色来自硫氰酸铁配合物；溶液中实际存在多种配位数和组成不同的配合物。",
+        "教材为简化讨论常写 Fe3+ + 3SCN- ⇌ Fe(SCN)3；该写法不应被理解为唯一的溶液物种。",
+        "FeCl3 + 3KSCN ⇌ Fe(SCN)3 + 3KCl 把配位平衡写成分子复分解，遗漏离子本质，不作为规范表示。"
+      ],
+      "ambiguity_notes": [
+        "教学展示采用 1:1 配位物种 [Fe(SCN)]2+；只用于说明浓度改变导致平衡移动，不声称其为唯一配合物。"
+      ],
+      "equations": [
+        {
+          "role": "complex_equilibrium",
+          "display": "Fe³⁺(aq) + SCN⁻(aq) ⇌ [Fe(SCN)]²⁺(aq)",
+          "balance": "Fe^3+(aq) + SCN^-(aq) ⇌ [Fe(SCN)]^2+(aq)",
+          "note": "以代表性1:1配合物表示显色平衡；实际配合物组成随条件变化。"
+        }
+      ]
+    },
+    {
+      "set_id": "eq_generic_ksp_dissolution",
+      "domain": "equilibrium_chemistry",
+      "concept_ids": ["chem_4292a73a3a14"],
+      "title": "难溶电解质溶解平衡通式",
+      "medium": "aqueous_saturated_solution",
+      "conditions": ["难溶电解质A_mB_n", "饱和溶液", "忽略活度系数，以浓度近似活度"],
+      "notes": [
+        "m、n 是化学计量数，不是具体元素的固定下标。",
+        "Ksp 表达式应与溶解平衡的化学计量数一致；不能把不同组成盐的 Ksp 直接按数值大小比较溶解度。"
+      ],
+      "ambiguity_notes": [
+        "通式仅用于建立表达式；具体物质的电荷、溶解物种和副反应需另行判断。"
+      ],
+      "equations": [
+        {
+          "role": "generic_dissolution_equilibrium",
+          "display": "AₘBₙ(s) ⇌ mAⁿ⁺(aq) + nBᵐ⁻(aq)",
+          "note": "结构审阅：m、n 为通式计量数，不对应单一分子，不能做固定数值配平。"
+        }
+      ]
+    },
+    {
+      "set_id": "eq_generic_weak_acid_ionization",
+      "domain": "equilibrium_chemistry",
+      "concept_ids": ["chem_4f703f49733c"],
+      "title": "一元弱酸电离平衡通式",
+      "medium": "aqueous",
+      "conditions": ["一元弱酸HA", "水溶液", "忽略活度系数，以浓度近似活度"],
+      "notes": [
+        "Ka 是酸电离平衡的平衡常数表达式，不是单独的化学反应。",
+        "通式只适用于一元弱酸；多元弱酸应分步书写。"
+      ],
+      "ambiguity_notes": [
+        "A- 是共轭碱的通用记号，不代表某种具体元素或离子。"
+      ],
+      "equations": [
+        {
+          "role": "generic_ionization_equilibrium",
+          "display": "HA(aq) ⇌ H⁺(aq) + A⁻(aq)",
+          "note": "结构审阅：HA/A- 为通式记号，不对应单一具体物质。"
+        }
+      ]
+    },
+    {
+      "set_id": "eq_indicator_generic_equilibrium",
+      "domain": "equilibrium_chemistry",
+      "concept_ids": ["chem_7050897bc62f"],
+      "title": "酸碱指示剂通用电离平衡",
+      "medium": "aqueous",
+      "conditions": ["弱酸性指示剂", "溶液pH改变", "酸式与碱式颜色不同"],
+      "notes": [
+        "HIn 与 In- 分别表示指示剂的酸式和碱式，In 不是元素铟。",
+        "不同指示剂的具体结构、pKa和变色范围不同，不能用一个通式给出统一变色点。"
+      ],
+      "ambiguity_notes": [
+        "本式只说明颜色变化的平衡基础，不指定具体指示剂。"
+      ],
+      "equations": [
+        {
+          "role": "generic_indicator_equilibrium",
+          "display": "HIn(aq) ⇌ H⁺(aq) + In⁻(aq)",
+          "note": "结构审阅：HIn/In- 是通用指示剂记号，不能解释为氢化铟。"
+        }
+      ]
+    },
+    {
+      "set_id": "eq_sodium_water",
+      "domain": "inorganic_chemistry",
+      "concept_ids": ["chem_b16c1402c317"],
+      "title": "钠与水的反应",
+      "medium": "aqueous",
+      "conditions": ["常温", "钠过量风险需控制", "反应剧烈并放热"],
+      "notes": [
+        "分子方程式用于表示物质转化，离子方程式用于表示溶液中实际参加反应的主要微粒。",
+        "钠是活泼金属，不能直接与硫酸铜溶液发生简单置换；应先考虑钠与水反应。"
+      ],
+      "ambiguity_notes": [
+        "若体系中存在Cu2+，生成的OH-还会与Cu2+形成沉淀，需另写后续反应。"
+      ],
+      "equations": [
+        {
+          "role": "molecular_equation",
+          "display": "2Na(s) + 2H₂O(l) → 2NaOH(aq) + H₂(g)",
+          "balance": "2Na(s) + 2H2O(l) -> 2NaOH(aq) + H2(g)",
+          "note": "钠浮在水面并熔成小球，反应放热。"
+        },
+        {
+          "role": "net_ionic_equation",
+          "display": "2Na(s) + 2H₂O(l) → 2Na⁺(aq) + 2OH⁻(aq) + H₂(g)",
+          "balance": "2Na(s) + 2H2O(l) -> 2Na^+(aq) + 2OH^-(aq) + H2(g)",
+          "note": "Na和H2O保留为分子/单质形式，Na+与OH-为溶液中的主要离子。"
+        }
+      ]
+    },
+    {
+      "set_id": "eq_chlorine_water_disproportionation",
+      "domain": "inorganic_chemistry",
+      "concept_ids": ["chem_d6a657ec2f2b"],
+      "title": "氯气与水的反应及次氯酸分解",
+      "medium": "aqueous",
+      "conditions": ["氯气溶于水", "常温下建立可逆平衡", "次氯酸见光分解"],
+      "notes": [
+        "氯水是混合物，包含Cl2、H2O、HCl、HClO及电离产生的离子，不能把‘氯水’当作单一物质。",
+        "Cl2与水的反应是可逆的；次氯酸光照分解会推动平衡，但不能把两个过程合并成一个方程式。",
+        "HClO不稳定，光照、受热或某些催化剂条件下分解更快。"
+      ],
+      "ambiguity_notes": [
+        "不同教材对可逆箭头的使用可能因强调程度不同；本数据采用更严格的平衡表示。"
+      ],
+      "equations": [
+        {
+          "role": "chlorine_hydrolysis_equilibrium",
+          "display": "Cl₂(g) + H₂O(l) ⇌ HCl(aq) + HClO(aq)",
+          "balance": "Cl2(g) + H2O(l) ⇌ HCl(aq) + HClO(aq)",
+          "note": "氯气在纯水中的歧化/水解平衡。"
+        },
+        {
+          "role": "hypochlorous_acid_photolysis",
+          "display": "2HClO(aq) —光照→ 2HCl(aq) + O₂(g)",
+          "balance": "2HClO(aq) -> 2HCl(aq) + O2(g)",
+          "note": "次氯酸光照分解；箭头条件需要与平衡式分开。"
+        }
+      ]
+    },
+    {
+      "set_id": "eq_arrhenius_acid_base_ionization",
+      "domain": "inorganic_chemistry",
+      "concept_ids": ["chem_e4a62f6c589e"],
+      "title": "阿伦尼乌斯酸、碱的电离",
+      "medium": "aqueous",
+      "conditions": ["水溶液", "酸、碱分别提供H+或OH-", "此处只说明经典阿伦尼乌斯模型"],
+      "notes": [
+        "HCl与NaOH是强电解质，在水溶液中近似完全电离。",
+        "酸、碱的本质还可由布朗斯特-劳里和路易斯模型描述；中学阶段应区分不同模型的适用边界。",
+        "不能把所有酸都写成完全电离；弱酸应使用可逆平衡。"
+      ],
+      "ambiguity_notes": [
+        "本概念若讨论广义酸碱，不能把‘H+或OH-生成’作为唯一判据。"
+      ],
+      "equations": [
+        {
+          "role": "strong_acid_ionization",
+          "display": "HCl(aq) → H⁺(aq) + Cl⁻(aq)",
+          "balance": "HCl(aq) -> H^+(aq) + Cl^-(aq)",
+          "note": "强酸在水中的近似完全电离。"
+        },
+        {
+          "role": "strong_base_ionization",
+          "display": "NaOH(aq) → Na⁺(aq) + OH⁻(aq)",
+          "balance": "NaOH(aq) -> Na^+(aq) + OH^-(aq)",
+          "note": "强碱在水中的近似完全电离。"
+        }
+      ]
+    },
+    {
+      "set_id": "eq_iodide_oxidation_extraction",
+      "domain": "inorganic_chemistry",
+      "concept_ids": ["chem_ea13d3c51819"],
+      "title": "碘离子氧化提取碘",
+      "medium": "aqueous",
+      "conditions": ["H2O2路线需酸性介质", "Cl2路线需控制用量", "避免过量氧化剂继续氧化碘"],
+      "notes": [
+        "I- → I2 只是半反应的一部分，必须同时写出氧化剂和电子转移。",
+        "H2O2在酸性条件下还原为H2O；Cl2还原为Cl-。",
+        "过量Cl2可能把I2进一步氧化为碘酸根等高氧化态物种，因此需控制用量。"
+      ],
+      "ambiguity_notes": [
+        "H2O2路线不写成碱性条件；碱性介质中产物和配平会改变。"
+      ],
+      "equations": [
+        {
+          "role": "hydrogen_peroxide_oxidation",
+          "display": "2I⁻(aq) + H₂O₂(aq) + 2H⁺(aq) → I₂(aq) + 2H₂O(l)",
+          "balance": "2I^-(aq) + H2O2(aq) + 2H^+(aq) -> I2(aq) + 2H2O(l)",
+          "note": "酸性条件下H2O2氧化I-。"
+        },
+        {
+          "role": "chlorine_oxidation",
+          "display": "Cl₂(aq) + 2I⁻(aq) → I₂(aq) + 2Cl⁻(aq)",
+          "balance": "Cl2(aq) + 2I^-(aq) -> I2(aq) + 2Cl^-(aq)",
+          "note": "氯气氧化I-；需控制氯气用量。"
+        }
+      ]
     }
   ]
 }

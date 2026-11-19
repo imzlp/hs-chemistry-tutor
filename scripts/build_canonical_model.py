@@ -18,12 +18,19 @@ CANONICAL_DIR = DATA_DIR / "canonical"
 GROUPS_PATH = ROOT / "scripts" / "canonical_concept_groups.json"
 CONTENT_OVERRIDES_PATH = ROOT / "scripts" / "canonical_content_overrides.json"
 EQUATION_OVERRIDES_PATH = ROOT / "scripts" / "equation_content_overrides.json"
+FORMULA_OVERRIDES_PATH = ROOT / "scripts" / "formula_content_overrides.json"
 CONFUSABLE_PAIRS_PATH = ROOT / "scripts" / "canonical_confusable_pairs.json"
 EQUATION_REVIEW_PATH = DATA_DIR / "review" / "equation-review.jsonl"
+EQUATION_EXTRACTION_REVIEW_PATH = (
+    DATA_DIR / "review" / "equation-extraction-review.jsonl"
+)
+FORMULA_REVIEW_PATH = DATA_DIR / "review" / "formula-review.jsonl"
+RELATION_REVIEW_OUTPUT_PATH = DATA_DIR / "review" / "relation-review.jsonl"
 P0_PATH = ROOT / "scripts" / "p0_content_overrides.json"
 P1_PATH = ROOT / "scripts" / "p1_content_overrides.json"
 P2_PATH = ROOT / "scripts" / "p2_content_overrides.json"
 EXTERNAL_PRIOR_PATH = ROOT / "scripts" / "external_prior_labels.json"
+RELATION_REVIEW_CATALOG_PATH = ROOT / "scripts" / "relation_review_catalog.json"
 
 ELEMENTS = set(
     "H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co "
@@ -63,7 +70,13 @@ TRADITIONAL_TEXT_TRANSLATION = str.maketrans(
     }
 )
 FORMULA_RE = re.compile(
-    r"(?<![A-Za-z])((?:\([A-Z][a-z]?\d*\)|[A-Z][a-z]?\d*)+)(?![A-Za-z])"
+    r"(?<![A-Za-z])((?:[A-Z][a-z]?\d*)+)(?![A-Za-z])"
+)
+GENERIC_ORGANIC_FORMULA_RE = re.compile(
+    r"(?<![A-Za-z])("
+    r"\([A-Z][A-Za-z0-9]*\)[nm]|"
+    r"C[nm]H[0-9nm]*(?:[+\-][0-9]+)?(?:O[0-9nm]*)?"
+    r")(?![A-Za-z])"
 )
 SPECIAL_FORMULA_RE = re.compile(
     r"Δ[HSG]|(?<![A-Za-z])K(?:sp|a|b|w|c)(?![A-Za-z])|"
@@ -643,9 +656,15 @@ def is_valid_formula(token: str) -> bool:
 def extract_formulas(text: str) -> list[str]:
     normalized = text.translate(SUBSCRIPT_TRANSLATION).translate(SUPERSCRIPT_TRANSLATION)
     result = []
+    masked = list(normalized)
+    for match in GENERIC_ORGANIC_FORMULA_RE.finditer(normalized):
+        result.append(match.group(1))
+        for index in range(match.start(), match.end()):
+            masked[index] = " "
+    normalized = "".join(masked)
     for match in FORMULA_RE.finditer(normalized):
         token = match.group(1)
-        if token in INVALID_FORMULA_TOKENS or token.startswith("("):
+        if token in INVALID_FORMULA_TOKENS:
             continue
         if not is_valid_formula(token):
             continue
@@ -806,6 +825,89 @@ def apply_content_override(concept: dict[str, Any], override: dict[str, Any]) ->
         concept["provenance"]["definition_origin"] = "canonical_content_override"
 
 
+def apply_formula_override(
+    concept: dict[str, Any],
+    override: dict[str, Any] | None,
+) -> None:
+    """Apply a concept-scoped formula correction without erasing provenance."""
+    if override is None:
+        return
+    entries = override.get("entries", [])
+    formulas = unique(
+        str(entry.get("formula", "")).strip()
+        for entry in entries
+        if str(entry.get("formula", "")).strip()
+    )
+    if not formulas:
+        raise ValueError(
+            f"{concept['canonical_name']}: formula override has no formulas"
+        )
+    concept["representations"]["formulas"] = formulas
+    concept["quality"]["corrections"].append(
+        "C1 formula representation correction: "
+        + str(override.get("reason", "reviewed formula representation"))
+    )
+
+
+def apply_formula_review(
+    concept: dict[str, Any],
+    review_records: list[dict[str, Any]],
+) -> None:
+    """Attach reviewed formula records without upgrading textbook evidence."""
+    if not review_records:
+        concept["quality"]["formula_review_ids"] = []
+        concept["quality"]["formula_validation_status"] = "not_applicable"
+        return
+    formulas = concept["representations"]["formulas"]
+    formula_order = {formula: index for index, formula in enumerate(formulas)}
+    ordered = sorted(
+        review_records,
+        key=lambda record: formula_order.get(record["formula"], len(formulas)),
+    )
+    reviewed_formulas = [record["formula"] for record in ordered]
+    if reviewed_formulas != formulas:
+        # A first rebuild may intentionally invalidate the previous formula
+        # ledger. The subsequent build_formula_review.py pass regenerates it.
+        concept["quality"]["formula_review_ids"] = []
+        concept["quality"]["formula_validation_status"] = "not_applicable"
+        return
+    concept["quality"]["formula_review_ids"] = [
+        record["formula_review_id"] for record in ordered
+    ]
+    methods = {record["review_method"] for record in ordered}
+    concept["quality"]["formula_validation_status"] = (
+        "curated_corrected"
+        if "curated_formula_context" in methods
+        else "machine_classified"
+    )
+    concept["quality"]["issue_details"] = [
+        detail
+        for detail in concept["quality"]["issue_details"]
+        if detail.get("code") != "formula_extraction_unverified"
+    ]
+    concept["quality"]["open_issues"] = [
+        issue
+        for issue in concept["quality"]["open_issues"]
+        if not issue.startswith("formulas are machine-extracted")
+    ]
+    concept["quality"]["quality_flags"] = [
+        flag
+        for flag in concept["quality"]["quality_flags"]
+        if flag != "needs_formula_review"
+    ]
+    issue = "reviewed formulas still lack verified textbook quotation and edition/ISBN"
+    concept["quality"]["open_issues"] = unique(
+        concept["quality"]["open_issues"] + [issue]
+    )
+    concept["quality"]["issue_details"].append(
+        {
+            "code": "formula_textbook_evidence_unverified",
+            "severity": "review",
+            "message": issue,
+        }
+    )
+
+
 def merge_override(base: dict[str, Any], overlay: dict[str, Any]) -> dict[str, Any]:
     """Merge a focused override into an existing concept override."""
     merged = dict(base)
@@ -867,6 +969,35 @@ def apply_equation_review(
             "message": issue,
         }
     )
+
+
+def apply_equation_extraction_review(
+    concept: dict[str, Any],
+    audit: dict[str, Any] | None,
+) -> None:
+    """Close the prose-extraction warning after a concept-scoped disposition."""
+    if audit is None:
+        return
+    concept["quality"]["equation_extraction_review_id"] = audit[
+        "extraction_review_id"
+    ]
+    concept["quality"]["issue_details"] = [
+        detail
+        for detail in concept["quality"]["issue_details"]
+        if detail.get("code") != "equation_extraction_unverified"
+    ]
+    concept["quality"]["open_issues"] = [
+        issue
+        for issue in concept["quality"]["open_issues"]
+        if not issue.startswith("equations are prose-extracted")
+    ]
+    if not concept["representations"]["equations"]:
+        concept["quality"]["equation_validation_status"] = "reviewed_no_equation"
+        concept["quality"]["quality_flags"] = [
+            flag
+            for flag in concept["quality"]["quality_flags"]
+            if flag != "needs_equation_review"
+        ]
 
 
 def infer_concept_type(name: str, statement: str) -> str:
@@ -1012,6 +1143,22 @@ def main() -> None:
     p2_overrides, p2_ids = load_overrides(P2_PATH)
     corrected_ids = p0_ids | p1_ids | p2_ids
     external_priors = load_json_config(EXTERNAL_PRIOR_PATH)["labels"]
+    relation_review = load_json_config(RELATION_REVIEW_CATALOG_PATH)
+    reviewed_relation_mappings = relation_review["mappings"]
+    reviewed_external_priors = relation_review["external_priors"]
+    reviewed_gap_classifications = relation_review["gap_classifications"]
+    overlap_prior_labels = set(external_priors) & set(reviewed_external_priors)
+    conflicting_prior_labels = {
+        label
+        for label in overlap_prior_labels
+        if external_priors[label] != reviewed_external_priors[label]
+    }
+    if conflicting_prior_labels:
+        raise ValueError(
+            "Conflicting external-prior rationales: "
+            f"{sorted(conflicting_prior_labels)}"
+        )
+    external_priors = {**external_priors, **reviewed_external_priors}
     group_payload = load_json_config(GROUPS_PATH)
     content_override_payload = load_json_config(CONTENT_OVERRIDES_PATH)
     content_overrides = dict(content_override_payload.get("overrides", {}))
@@ -1021,11 +1168,29 @@ def main() -> None:
             content_overrides.get(override_name, {}),
             override,
         )
+    formula_override_payload = load_json_config(FORMULA_OVERRIDES_PATH)
+    formula_overrides = formula_override_payload["overrides"]
     confusable_payload = load_json_config(CONFUSABLE_PAIRS_PATH)
     groups = build_groups(explicit_by_book, group_payload, occurrence_order)
     equation_review_records = (
         read_jsonl(EQUATION_REVIEW_PATH)
         if EQUATION_REVIEW_PATH.exists()
+        else []
+    )
+    formula_manifest_path = DATA_DIR / "review" / "formula-review-manifest.json"
+    formula_review_manifest = (
+        load_json_config(formula_manifest_path)
+        if formula_manifest_path.exists()
+        else None
+    )
+    formula_review_records = (
+        read_jsonl(FORMULA_REVIEW_PATH)
+        if FORMULA_REVIEW_PATH.exists()
+        else []
+    )
+    equation_extraction_reviews = (
+        read_jsonl(EQUATION_EXTRACTION_REVIEW_PATH)
+        if EQUATION_EXTRACTION_REVIEW_PATH.exists()
         else []
     )
 
@@ -1056,6 +1221,31 @@ def main() -> None:
             )
         for reviewed_concept_id in review["concept_ids"]:
             equation_reviews_by_concept[reviewed_concept_id].append(review)
+    formula_reviews_by_concept: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for review in formula_review_records:
+        unknown_ids = set([review["concept_id"]]) - concept_id_set
+        if unknown_ids:
+            raise ValueError(
+                f"{review['formula_review_id']}: formula review references "
+                f"unknown concept: {sorted(unknown_ids)}"
+            )
+        formula_reviews_by_concept[review["concept_id"]].append(review)
+    equation_extraction_review_by_concept = {
+        review["concept_id"]: review
+        for review in equation_extraction_reviews
+    }
+    if len(equation_extraction_review_by_concept) != len(
+        equation_extraction_reviews
+    ):
+        raise ValueError("duplicate equation extraction review concept")
+    unknown_extraction_review_ids = (
+        set(equation_extraction_review_by_concept) - concept_id_set
+    )
+    if unknown_extraction_review_ids:
+        raise ValueError(
+            "Equation extraction reviews reference unknown concepts: "
+            f"{sorted(unknown_extraction_review_ids)}"
+        )
 
     raw_relations: list[dict[str, Any]] = []
     concepts: list[dict[str, Any]] = []
@@ -1376,6 +1566,9 @@ def main() -> None:
                 "open_issues": unique(issues),
                 "issue_details": issue_details,
                 "evidence_status": "ai_textbook_summary_unverified",
+                "formula_review_ids": [],
+                "formula_validation_status": "not_applicable",
+                "equation_extraction_review_id": None,
                 "equation_review_ids": [],
                 "equation_validation_status": "not_reviewed",
             },
@@ -1383,9 +1576,21 @@ def main() -> None:
         content_override = content_overrides.get(concept["canonical_name"])
         if content_override:
             apply_content_override(concept, content_override)
+        apply_formula_override(
+            concept,
+            formula_overrides.get(concept["canonical_name"]),
+        )
+        apply_formula_review(
+            concept,
+            formula_reviews_by_concept.get(concept["concept_id"], []),
+        )
         apply_equation_review(
             concept,
             equation_reviews_by_concept.get(concept["concept_id"], []),
+        )
+        apply_equation_extraction_review(
+            concept,
+            equation_extraction_review_by_concept.get(concept["concept_id"]),
         )
         concepts.append(concept)
 
@@ -1393,6 +1598,14 @@ def main() -> None:
     if unknown_override_names:
         raise ValueError(
             f"Canonical content overrides reference unknown concepts: {unknown_override_names}"
+        )
+    unknown_formula_override_names = sorted(
+        set(formula_overrides) - canonical_names_seen
+    )
+    if unknown_formula_override_names:
+        raise ValueError(
+            "Formula content overrides reference unknown concepts: "
+            f"{unknown_formula_override_names}"
         )
 
     # Curated contrast pairs are kept outside the free-text misconception
@@ -1483,6 +1696,18 @@ def main() -> None:
 
     exact_lookup: dict[str, set[str]] = defaultdict(set)
     normalized_lookup: dict[str, set[str]] = defaultdict(set)
+    reviewed_mapping_targets = {
+        label: value["target"]
+        for label, value in reviewed_relation_mappings.items()
+    }
+    unknown_reviewed_mapping_targets = sorted(
+        set(reviewed_mapping_targets.values()) - canonical_names_seen
+    )
+    if unknown_reviewed_mapping_targets:
+        raise ValueError(
+            "Relation review mappings reference unknown concepts: "
+            f"{unknown_reviewed_mapping_targets}"
+        )
 
     def add_lookup(text: str, target_id: str) -> None:
         if not text:
@@ -1497,6 +1722,9 @@ def main() -> None:
             add_lookup(alias, concept["concept_id"])
 
     def resolve_relation_label(label: str) -> tuple[set[str], str, str]:
+        reviewed_target = reviewed_mapping_targets.get(label)
+        if reviewed_target:
+            return {canonical_owner[reviewed_target]}, "manual_label_map", ""
         manual_target_name = RELATION_LABEL_ALIASES.get(label)
         if label in exact_lookup:
             return exact_lookup[label], "exact_label", ""
@@ -1811,6 +2039,148 @@ def main() -> None:
             }
         )
 
+    relation_rows_by_label: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for relation in relation_rows:
+        relation_rows_by_label[relation["target_label"]].append(relation)
+    known_relation_labels = set(relation_rows_by_label)
+    unknown_review_labels = sorted(
+        (
+            set(reviewed_relation_mappings)
+            | set(reviewed_external_priors)
+            | set(reviewed_gap_classifications)
+        )
+        - known_relation_labels
+    )
+    if unknown_review_labels:
+        raise ValueError(
+            "Relation review catalog references labels absent from source "
+            f"relations: {unknown_review_labels}"
+        )
+    mapping_gap_overlap = (
+        set(reviewed_relation_mappings) & set(reviewed_gap_classifications)
+    )
+    if mapping_gap_overlap:
+        raise ValueError(
+            "Relation labels cannot be both mapped and classified as gaps: "
+            f"{sorted(mapping_gap_overlap)}"
+        )
+    relation_review_rows: list[dict[str, Any]] = []
+    for label, items in sorted(relation_rows_by_label.items()):
+        statuses = sorted({item["resolution_status"] for item in items})
+        target_ids = sorted(
+            {
+                item["target_concept_id"]
+                for item in items
+                if item.get("target_concept_id")
+            }
+        )
+        candidate_ids = sorted(
+            {
+                candidate
+                for item in items
+                for candidate in item.get("target_candidates", [])
+            }
+        )
+        catalog_mapping = reviewed_relation_mappings.get(label)
+        catalog_gap = reviewed_gap_classifications.get(label)
+        if statuses == ["self_reference"]:
+            disposition = "self_reference"
+            rationale = (
+                "来源标签指向来源概念自身；即使目录给出同名解释，也不能生成自环边。"
+            )
+        elif statuses == ["resolved", "self_reference"]:
+            disposition = "partially_self_referential"
+            rationale = (
+                "该标签的部分关系可唯一解析到规范概念，另有来源把标签指向"
+                "自身；保留有效关系并剔除自环。"
+            )
+        elif catalog_mapping:
+            disposition = "reviewed_mapping"
+            rationale = catalog_mapping["rationale"]
+        elif label in reviewed_external_priors:
+            disposition = "reviewed_external_prior"
+            rationale = reviewed_external_priors[label]
+        elif catalog_gap:
+            disposition = (
+                "reviewed_aggregate_label"
+                if catalog_gap["classification"] == "aggregate_label"
+                else (
+                    "reviewed_too_broad"
+                    if catalog_gap["classification"] == "too_broad"
+                    else "reviewed_missing_concept"
+                )
+            )
+            rationale = catalog_gap["rationale"]
+        elif statuses == ["resolved"]:
+            disposition = "automatic_alias_or_exact_match"
+            rationale = (
+                "标签经精确名称、唯一别名或保守规范化规则映射到单一规范概念。"
+            )
+        elif statuses == ["ambiguous"]:
+            disposition = "ambiguous"
+            rationale = "标签存在多个规范候选，拒绝任意选择。"
+        elif statuses == ["external_prior"]:
+            disposition = "reviewed_external_prior"
+            rationale = (
+                items[0].get("resolution_note")
+                or "属于当前规范概念表之外的前置知识。"
+            )
+        else:
+            disposition = "unreviewed_gap"
+            rationale = (
+                "尚未找到唯一且语义等价的规范概念；缺口保留，不强行映射。"
+            )
+        candidate_names = (
+            catalog_gap.get("candidate_names", [])
+            if catalog_gap
+            else [
+                concept_name_by_id[candidate]
+                for candidate in candidate_ids
+                if candidate in concept_name_by_id
+            ]
+        )
+        if catalog_mapping:
+            candidate_names = [catalog_mapping["target"]]
+        review_priority = (
+            "high"
+            if len(items) >= 4
+            else "medium"
+            if len(items) >= 2 or catalog_mapping or catalog_gap
+            else "low"
+        )
+        relation_review_rows.append(
+            {
+                "schema_version": "chem-relation-review-v1",
+                "review_id": stable_id("rvr_", label),
+                "target_label": label,
+                "review_disposition": disposition,
+                "review_rationale": rationale,
+                "review_priority": review_priority,
+                "relation_count": len(items),
+                "relation_types": sorted(
+                    {item["relation_type"] for item in items}
+                ),
+                "resolution_statuses": statuses,
+                "target_concept_ids": target_ids,
+                "target_concept_names": [
+                    concept_name_by_id[target_id]
+                    for target_id in target_ids
+                    if target_id in concept_name_by_id
+                ],
+                "candidate_names": unique(candidate_names),
+                "source_concept_ids": sorted(
+                    {item["source_concept_id"] for item in items}
+                ),
+                "source_occurrence_ids": sorted(
+                    {item["source_occurrence_id"] for item in items}
+                ),
+                "review_status": "machine_reviewed",
+                "human_verified": False,
+                "evidence_status": "ai_textbook_summary_unverified",
+                "reviewed_at": relation_review["reviewed_at"],
+            }
+        )
+
     concepts.sort(key=lambda item: item["concept_id"])
     occurrence_rows.sort(key=lambda item: item["occurrence_id"])
     relation_rows.sort(
@@ -1869,6 +2239,9 @@ def main() -> None:
         for record in equation_review_records
         for concept_id in record["concept_ids"]
     }
+    formula_concepts = {
+        record["concept_id"] for record in formula_review_records
+    }
 
     manifest_out = {
         "schema_version": "chem-model-v1",
@@ -1908,6 +2281,16 @@ def main() -> None:
             "canonical_concepts_covered": len(equation_concepts),
             "textbook_evidence_status": "unverified_ai_summary_pages_only",
         },
+        "formula_review": {
+            "formula_reviews": len(formula_review_records),
+            "canonical_concepts_covered": len(formula_concepts),
+            "curated_concepts": (
+                formula_review_manifest.get("curated_concepts", 0)
+                if formula_review_manifest
+                else 0
+            ),
+            "textbook_evidence_status": "unverified_ai_summary_pages_only",
+        },
         "relations": {
             "resolved": sum(1 for row in relation_rows if row["resolution_status"] == "resolved"),
             "unresolved": sum(1 for row in relation_rows if row["resolution_status"] == "unresolved"),
@@ -1922,6 +2305,40 @@ def main() -> None:
             "ambiguous": sum(1 for row in relation_rows if row["resolution_status"] == "ambiguous"),
             "self_reference": sum(1 for row in relation_rows if row["resolution_status"] == "self_reference"),
             "external_prior": sum(1 for row in relation_rows if row["resolution_status"] == "external_prior"),
+        },
+        "relation_review": {
+            "labels": len(relation_review_rows),
+            "reviewed_mappings": sum(
+                1
+                for row in relation_review_rows
+                if row["review_disposition"] == "reviewed_mapping"
+            ),
+            "reviewed_gap_labels": sum(
+                1
+                for row in relation_review_rows
+                if row["review_disposition"].startswith("reviewed_")
+                and row["review_disposition"]
+                not in {"reviewed_mapping", "reviewed_external_prior"}
+            ),
+            "unreviewed_gap_labels": sum(
+                1
+                for row in relation_review_rows
+                if row["review_disposition"] == "unreviewed_gap"
+            ),
+            "partially_self_referential_labels": sum(
+                1
+                for row in relation_review_rows
+                if row["review_disposition"] == "partially_self_referential"
+            ),
+            "dispositions": dict(
+                sorted(
+                    Counter(
+                        row["review_disposition"]
+                        for row in relation_review_rows
+                    ).items()
+                )
+            ),
+            "human_verified": False,
         },
         "ambiguous_aliases": len(ambiguous_aliases),
         "ambiguous_alias_labels": sorted(ambiguous_aliases),
@@ -1938,7 +2355,11 @@ def main() -> None:
                     for issue in concept["quality"]["open_issues"]
                 )
             ),
-            "formula_validation": "not_performed",
+            "formula_validation": (
+                "machine_classified_and_curated"
+                if formula_review_records
+                else "not_performed"
+            ),
             "equation_validation": (
                 "partial_machine_mass_charge_and_structural_review"
                 if equation_review_records
@@ -1954,6 +2375,7 @@ def main() -> None:
         return
 
     CANONICAL_DIR.mkdir(parents=True, exist_ok=True)
+    RELATION_REVIEW_OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     (CANONICAL_DIR / "concepts.jsonl").write_text(
         format_jsonl(concepts), encoding="utf-8"
     )
@@ -1974,6 +2396,9 @@ def main() -> None:
     )
     (CANONICAL_DIR / "review-sheet.jsonl").write_text(
         format_jsonl(review_sheet_rows), encoding="utf-8"
+    )
+    RELATION_REVIEW_OUTPUT_PATH.write_text(
+        format_jsonl(relation_review_rows), encoding="utf-8"
     )
     (CANONICAL_DIR / "manifest.json").write_text(
         json.dumps(manifest_out, ensure_ascii=False, indent=2) + "\n",

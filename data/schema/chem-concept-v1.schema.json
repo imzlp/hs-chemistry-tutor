@@ -215,6 +215,9 @@
         "open_issues",
         "issue_details",
         "evidence_status",
+        "formula_review_ids",
+        "formula_validation_status",
+        "equation_extraction_review_id",
         "equation_review_ids",
         "equation_validation_status"
       ],
@@ -244,6 +247,22 @@
         "evidence_status": {
           "const": "ai_textbook_summary_unverified"
         },
+        "formula_review_ids": {
+          "type": "array",
+          "items": {"type": "string", "pattern": "^fmr_[0-9a-f]{12}$"},
+          "uniqueItems": true
+        },
+        "formula_validation_status": {
+          "enum": [
+            "not_applicable",
+            "machine_classified",
+            "curated_corrected"
+          ]
+        },
+        "equation_extraction_review_id": {
+          "type": ["string", "null"],
+          "pattern": "^eer_[0-9a-f]{12}$"
+        },
         "equation_review_ids": {
           "type": "array",
           "items": {"type": "string", "pattern": "^eqr_[0-9a-f]{12}$"},
@@ -252,6 +271,7 @@
         "equation_validation_status": {
           "enum": [
             "not_reviewed",
+            "reviewed_no_equation",
             "machine_mass_charge_checked",
             "structural_reviewed",
             "machine_and_structural_reviewed"

@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/schemas/chem-equation-extraction-review-v1.schema.json",
+  "title": "High-school chemistry equation extraction review",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "extraction_review_id",
+    "concept_id",
+    "concept_name",
+    "outcome",
+    "classification",
+    "original_problem",
+    "resolution",
+    "examples",
+    "canonical_equation_review_ids",
+    "canonical_equations",
+    "source_occurrence_ids",
+    "review_status",
+    "human_verified",
+    "evidence_status",
+    "reviewed_at"
+  ],
+  "properties": {
+    "schema_version": {"const": "chem-equation-extraction-review-v1"},
+    "extraction_review_id": {
+      "type": "string",
+      "pattern": "^eer_[0-9a-f]{12}$"
+    },
+    "concept_id": {"type": "string", "pattern": "^chem_[0-9a-f]{12}$"},
+    "concept_name": {"type": "string", "minLength": 1},
+    "outcome": {
+      "enum": [
+        "reaction_equations",
+        "mixed_reclassified",
+        "no_reaction_equation"
+      ]
+    },
+    "classification": {
+      "enum": [
+        "prose_logic_chain",
+        "prose_note",
+        "thermodynamic_formula",
+        "thermodynamic_prose",
+        "thermodynamic_relation",
+        "definition_formula",
+        "equilibrium_relation",
+        "equilibrium_equation",
+        "generic_definition",
+        "generic_equilibrium_equation",
+        "reaction_equation",
+        "acid_base_ionization",
+        "redox_half_reaction"
+      ]
+    },
+    "original_problem": {"type": "string", "minLength": 1},
+    "resolution": {"type": "string", "minLength": 1},
+    "examples": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["extracted_text", "disposition"],
+        "properties": {
+          "extracted_text": {"type": "string", "minLength": 1},
+          "disposition": {
+            "enum": [
+              "prose_discarded",
+              "reclassified_as_notation",
+              "reclassified_as_relation",
+              "normalized_to_equation",
+              "split_into_equations",
+              "split_equation_and_notation",
+              "corrected_equation_representation",
+              "completed_and_split_equations"
+            ]
+          }
+        }
+      }
+    },
+    "canonical_equation_review_ids": {
+      "type": "array",
+      "items": {"type": "string", "pattern": "^eqr_[0-9a-f]{12}$"},
+      "uniqueItems": true
+    },
+    "canonical_equations": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "uniqueItems": true
+    },
+    "source_occurrence_ids": {
+      "type": "array",
+      "items": {"type": "string", "pattern": "^kp_[0-9a-f]{12}$"},
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "review_status": {"const": "machine_reviewed"},
+    "human_verified": {"const": false},
+    "evidence_status": {"const": "ai_textbook_summary_unverified"},
+    "reviewed_at": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    }
+  }
+}

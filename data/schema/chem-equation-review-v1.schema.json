@@ -39,7 +39,12 @@
     "review_set_key": {"type": "string", "pattern": "^[a-z0-9_]+$"},
     "review_set_title": {"type": "string", "minLength": 1},
     "domain": {
-      "enum": ["electrochemistry", "organic_chemistry"]
+      "enum": [
+        "electrochemistry",
+        "organic_chemistry",
+        "inorganic_chemistry",
+        "equilibrium_chemistry"
+      ]
     },
     "concept_ids": {
       "type": "array",

@@ -2,18 +2,20 @@
   "schema_version": "chem-equation-review-manifest-v1",
   "generated_at": "2026-11-19",
   "catalog_version": 2,
-  "review_sets": 46,
-  "equations": 107,
+  "review_sets": 56,
+  "equations": 122,
   "review_methods": {
-    "machine_mass_charge_check": 93,
-    "structural_review": 14
+    "machine_mass_charge_check": 105,
+    "structural_review": 17
   },
   "domains": {
     "electrochemistry": 57,
+    "equilibrium_chemistry": 7,
+    "inorganic_chemistry": 8,
     "organic_chemistry": 50
   },
-  "canonical_concepts_covered": 65,
-  "source_occurrences_covered": 74,
+  "canonical_concepts_covered": 76,
+  "source_occurrences_covered": 85,
   "source_verification": {
     "status": "unverified_ai_summary_pages_only",
     "publisher_verified": 0,
@@ -29,5 +31,30 @@
     "机器校验只覆盖组成式层面的原子守恒与净电荷守恒，不认证反应事实、条件、机理或教材原文。",
     "结构审查条目不能进行单一分子计量配平，必须连同介质、条件和结构片段说明使用。",
     "所有页码继承自 AI 教材摘要，未核对出版社、版次、ISBN、版权页或印刷原文。"
-  ]
+  ],
+  "extraction_review": {
+    "concepts": 20,
+    "outcomes": {
+      "mixed_reclassified": 2,
+      "no_reaction_equation": 9,
+      "reaction_equations": 9
+    },
+    "classifications": {
+      "acid_base_ionization": 1,
+      "definition_formula": 1,
+      "equilibrium_equation": 4,
+      "equilibrium_relation": 1,
+      "generic_definition": 2,
+      "generic_equilibrium_equation": 1,
+      "prose_logic_chain": 1,
+      "prose_note": 1,
+      "reaction_equation": 2,
+      "redox_half_reaction": 1,
+      "thermodynamic_formula": 3,
+      "thermodynamic_prose": 1,
+      "thermodynamic_relation": 1
+    },
+    "human_verified": false,
+    "evidence_status": "ai_textbook_summary_unverified"
+  }
 }

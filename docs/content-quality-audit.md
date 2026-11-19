@@ -11,13 +11,16 @@
 
 已经完成：
 
-- 已修复 10 个 P0 事实错误、19 个 P1 内容问题和 38 个 P2 一致性问题；
-- 基础修订 101 个概念，合并方程专项修订后共覆盖 108 个规范概念；
+- 已修复 11 个 P0 事实错误、19 个 P1 内容问题和 38 个 P2 一致性问题；
+- 101 个规范概念有基础内容覆盖，合并方程专项覆盖后共涉及 122 个概念级修订；
 - 已把 562 条教材出现记录归并为 507 个规范概念；
 - 已保留 `kp_id` 作为教材出现记录 ID，并生成稳定的 `concept_id`；
 - 已生成 15 组易混概念对照，区分维度写入独立文件；
-- 已生成复核队列和关系缺口清单，未完成的审核不会被隐藏。
-- 已对电化学与有机化学 46 组情境、107 条方程式建立逐条审核记录；
+- 已生成复核队列和关系缺口清单，未完成的审核不会被隐藏；
+- 已为 251 个概念中的 754 条化学式建立概念范围内的语法、类型和角色台账；
+- 已对 56 组反应情境、122 条方程式建立逐条审核记录；
+- 已对原 20 个方程抽取告警概念逐条复核并清除 `equation_extraction_unverified`；
+- 已为 1371 个唯一关系标签建立逐条处置台账，明确保留 776 个真实缺口；
 - 已生成 573 条教材定位记录，逐条标记页码和版本证据尚未核验。
 
 仍然不能宣称：
@@ -25,7 +28,9 @@
 - 没有教师逐概念签字确认；
 - 没有教材出版社、版次、ISBN 和原文逐句定位；现有页码仍只是 AI 摘要声称；
 - 方程式只完成部分原子/电荷机器复核，未认证反应条件、机理、状态符号和教材原文；
-- 没有把 931 条未解析关系全部变成可靠知识图谱。
+- 没有把 865 条未解析关系、29 条自引用关系和 1 条歧义关系变成可靠知识图谱；
+- 关系审核台账虽然覆盖全部 1371 个标签，但其中 776 个仍是未找到合适规范概念的
+  真实缺口，不能把“已建立台账”误写成“已全部解析”。
 
 因此，所有规范概念当前都是：
 
@@ -80,11 +85,15 @@ evidence_status = ai_textbook_summary_unverified
 完整清单以 `scripts/p0_content_overrides.json`、
 `scripts/p1_content_overrides.json`、`scripts/p2_content_overrides.json` 为准。
 
+本轮新增的 P0 修正包括鼠李糖分子式：`C6H12O5` 是鼠李糖，`C5H10O4`
+是脱氧核糖，二者不能互换。该修正在概念 `kp_36b829a66fda` 对应的规范概念中
+固化为回归检查。
+
 ### 规范概念层修订
 
 `scripts/canonical_content_overrides.json` 对 101 个规范概念应用了基础内容
-修订；`scripts/equation_content_overrides.json` 再对其中 3 个概念补充方程相关
-边界，并新增 7 个概念修订，合并后共覆盖 108 个概念。重点是：
+修订；`scripts/equation_content_overrides.json` 提供 30 个方程相关修订项，
+合并后共覆盖 122 个概念。重点是：
 
 - 给定义补充适用条件、例外和边界；
 - 把“所有、唯一、一定、完全”等绝对化表述改为可检验的条件句；
@@ -113,20 +122,32 @@ evidence_status = ai_textbook_summary_unverified
   "confusable_pairs": 15,
   "review_sheet_rows": 507,
   "review_sheet_priorities": {
-    "high": 32,
-    "medium": 475
+    "high": 28,
+    "medium": 479
   },
   "relations": {
-    "resolved": 943,
-    "unresolved": 931,
-    "external_prior": 197,
-    "self_reference": 28,
+    "resolved": 977,
+    "unresolved": 865,
+    "external_prior": 228,
+    "self_reference": 29,
     "ambiguous": 1
   },
-  "review_queue": 497,
+  "relation_gaps": {
+    "labels": 927,
+    "relations": 1123
+  },
+  "relation_review": {
+    "labels": 1371,
+    "reviewed_mappings": 32,
+    "reviewed_gap_labels": 35,
+    "partially_self_referential_labels": 10,
+    "unreviewed_gap_labels": 776
+  },
+  "review_queue": 495,
   "blocking_concepts": 0,
   "scope_inferred_from_subtopics": 75,
-  "scope_generic": 0
+  "formula_reviews": 754,
+  "equation_reviews": 122
 }
 ```
 
@@ -135,11 +156,18 @@ evidence_status = ai_textbook_summary_unverified
 ```json
 {
   "equation_review": {
-    "review_sets": 46,
-    "equations": 107,
-    "machine_mass_charge_checked": 93,
-    "structural_reviewed": 14,
-    "canonical_concepts_covered": 65
+    "review_sets": 56,
+    "equations": 122,
+    "machine_mass_charge_checked": 105,
+    "structural_reviewed": 17,
+    "canonical_concepts_covered": 76,
+    "source_occurrences_covered": 85
+  },
+  "formula_review": {
+    "formula_reviews": 754,
+    "canonical_concepts_with_formulas": 251,
+    "unique_formula_strings": 164,
+    "curated_concepts": 10
   },
   "textbook_locator": {
     "source_occurrences": 562,
@@ -155,7 +183,7 @@ evidence_status = ai_textbook_summary_unverified
 `review_queue` 很大并不代表所有概念都“错误”。它同时包含：
 
 - 来源关系标签尚未找到规范概念节点；
-- 仍带 `formula_extraction_unverified` 或 `equation_extraction_unverified` 的条目尚未完成对应结构化验证；
+- 已审核公式/方程仍保留教材原文和精确页码未核验的证据缺口；
 - 条件、例外和例子由机器抽取，需要教师确认；
 - 75 个概念的 scope 由 subtopics 推断，尚未逐条对照教材原文；
 - 别名存在歧义，已从公开别名表中移除；
@@ -170,26 +198,41 @@ evidence_status = ai_textbook_summary_unverified
 
 ### 1. 知识图谱仍不完整
 
-当前有 943 条关系已解析，但仍有 931 条未解析。主要原因是来源层使用自由文本
-标签，而规范概念表不一定存在同名节点。典型缺口包括“化学平衡移动原理”、
+当前有 977 条关系已解析，但仍有 865 条未解析、29 条自引用和 1 条歧义。
+主要原因是来源层使用自由文本标签，而规范概念表不一定存在同名节点。典型
+缺口包括“化学平衡移动原理”、
 “氧化还原反应配平”、“勒夏特列原理”、“交联反应”等。
 
-这些缺口会保留在 `relation-gaps.jsonl`，教学系统不能把缺失边当作“没有关系”。
+这些缺口会保留在 `relation-gaps.jsonl`。关系审核台账覆盖全部 1371 个标签，
+其中 776 个标签仍是未找到合适规范概念的真实缺口；教学系统不能把“已建立
+标签台账”误写成“关系已经全部解析”。
 
-### 2. 方程式只完成部分机器复核
+### 2. 化学式与方程式只完成机器复核
 
-`formula_validation` 仍为 `not_performed`。`equation_validation` 已升级为：
+`formula_validation` 已从“未处理”推进为：
+
+```text
+machine_classified_and_curated
+```
+
+754 条概念范围内的化学式已按分子式、缩合式、聚合物、通式、离子、元素符号
+或指示剂通用记号分类，并记录其是否为中心物质、类别通式、对比物种等。这个
+状态只表示语法和概念范围经过机器审核，不表示每个化学式都是该概念的中心
+物质，也不表示教材使用完全相同写法。
+
+`equation_validation` 为：
 
 ```text
 partial_machine_mass_charge_and_structural_review
 ```
 
-电化学与有机化学的 107 条方程式已有逐条记录，其中：
+电化学、有机、无机与平衡情境的 122 条方程式已有逐条记录，其中：
 
-- 93 条通过组成式层面的原子守恒和净电荷守恒；
-- 14 条是聚合物或结构片段，只做结构审查，明确标为 `not_applicable`；
-- 65 个规范概念已接入审核后的展示式；
-- 其余 20 个仍带 `equation_extraction_unverified` 的概念没有被隐藏。
+- 105 条通过组成式层面的原子守恒和净电荷守恒；
+- 17 条是聚合物或结构片段，只做结构审查，明确标为 `not_applicable`；
+- 76 个规范概念已接入审核后的展示式；
+- 原 20 个 `equation_extraction_unverified` 概念已完成逐条分类，确认其中
+  9 个没有反应方程、9 个有真实方程、2 个为混合内容并已拆分。
 
 机器校验不认证反应事实、条件、机理、状态符号、有效数字或教材原文。尤其是
 电池半反应、有机反应条件和聚合物端基，仍必须按具体体系复核。
@@ -238,23 +281,28 @@ python3 scripts/apply_content_overrides.py \
 python3 scripts/apply_content_overrides.py \
   --overrides scripts/p2_content_overrides.json --write
 python3 scripts/build_canonical_model.py
+python3 scripts/build_formula_review.py
 python3 scripts/build_equation_review.py
+python3 scripts/build_canonical_model.py
 python3 scripts/build_textbook_locator.py
 python3 scripts/build_canonical_model.py
-python3 scripts/validate_canonical_model.py
+python3 scripts/validate_canonical_model.py --strict-schema
 ```
 
 `validate_canonical_model.py` 会检查来源覆盖、概念 ID、别名唯一性、关系表
-无损映射、复核队列、易混对照对称性、方程原子/电荷、方程来源覆盖、教材定位
-字段、JSON 重复键和 schema。
+无损映射、复核队列、易混对照对称性、公式语法与概念覆盖、方程原子/电荷、
+方程抽取审核、关系标签处置一致性、教材定位字段、JSON 重复键和四类审核台账的
+严格 schema。
 
 ## 八、总结
 
 这批数据已经从“分散的教材摘要”推进到“可追溯 occurrence + 规范 concept +
-显式关系 + 易混对照 + 复核队列 + 分层方程审核 + 逐条教材定位台账”的结构，
+显式关系 + 易混对照 + 复核队列 + 公式/方程/关系三层审核 + 逐条教材定位台账”
+的结构，
 适合作为高中化学辅助教学系统的候选数据底座。
 
 但它的正确性边界必须被系统显式继承：`machine_reviewed` 不是专家认证，
-`resolved` 不是事实正确，方程机器配平不是反应事实认证，页码存在也不等于
+`resolved` 不是事实正确，公式分类不是物质身份认证，方程机器配平不是反应
+事实认证，关系台账覆盖全部标签也不等于全部关系已解析，页码存在也不等于
 教材原文已核验，`confidence` 更不是无歧义保证。正式教学上线前，仍应由高中
-化学教师按明确教材版本完成逐概念、逐方程和逐引文复核。
+化学教师按明确教材版本完成逐概念、逐公式、逐方程和逐引文复核。

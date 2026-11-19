@@ -12,8 +12,8 @@
   "confusable_pairs": 15,
   "review_sheet_rows": 507,
   "review_sheet_priorities": {
-    "high": 32,
-    "medium": 475
+    "high": 28,
+    "medium": 479
   },
   "manual_merge_groups": 37,
   "auto_merged_groups": 470,
@@ -22,33 +22,58 @@
   "evidence_status": "ai_textbook_summary_unverified",
   "human_verified": false,
   "corrections": {
-    "p0": 10,
+    "p0": 11,
     "p1": 19,
     "p2": 38,
-    "canonical_content_overrides": 108
+    "canonical_content_overrides": 122
   },
   "equation_review": {
-    "review_sets": 46,
-    "equations": 107,
-    "machine_mass_charge_checked": 93,
-    "structural_reviewed": 14,
-    "canonical_concepts_covered": 65,
+    "review_sets": 56,
+    "equations": 122,
+    "machine_mass_charge_checked": 105,
+    "structural_reviewed": 17,
+    "canonical_concepts_covered": 76,
+    "textbook_evidence_status": "unverified_ai_summary_pages_only"
+  },
+  "formula_review": {
+    "formula_reviews": 754,
+    "canonical_concepts_covered": 251,
+    "curated_concepts": 10,
     "textbook_evidence_status": "unverified_ai_summary_pages_only"
   },
   "relations": {
-    "resolved": 943,
-    "unresolved": 931,
+    "resolved": 977,
+    "unresolved": 865,
     "ambiguous": 1,
-    "self_reference": 28,
-    "external_prior": 197
+    "self_reference": 29,
+    "external_prior": 228
   },
   "relation_gaps": {
-    "labels": 959,
-    "relations": 1157,
-    "unresolved": 931,
+    "labels": 927,
+    "relations": 1123,
+    "unresolved": 865,
     "ambiguous": 1,
-    "self_reference": 28,
-    "external_prior": 197
+    "self_reference": 29,
+    "external_prior": 228
+  },
+  "relation_review": {
+    "labels": 1371,
+    "reviewed_mappings": 32,
+    "reviewed_gap_labels": 35,
+    "unreviewed_gap_labels": 776,
+    "partially_self_referential_labels": 10,
+    "dispositions": {
+      "ambiguous": 1,
+      "automatic_alias_or_exact_match": 412,
+      "partially_self_referential": 10,
+      "reviewed_aggregate_label": 14,
+      "reviewed_external_prior": 87,
+      "reviewed_mapping": 32,
+      "reviewed_missing_concept": 21,
+      "self_reference": 18,
+      "unreviewed_gap": 776
+    },
+    "human_verified": false
   },
   "ambiguous_aliases": 22,
   "ambiguous_alias_labels": [
@@ -77,22 +102,21 @@
   ],
   "quality": {
     "review_method": "rule_assisted_machine_review_v3",
-    "concepts_with_open_issues": 497,
+    "concepts_with_open_issues": 495,
     "blocking_concepts": 0,
     "issue_codes": {
       "ambiguous_alias_omitted": 42,
       "ambiguous_relation": 1,
       "boundary_extraction_unverified": 343,
-      "equation_extraction_unverified": 20,
-      "equation_textbook_evidence_unverified": 65,
-      "external_prior_relation": 178,
-      "formula_extraction_unverified": 251,
+      "equation_textbook_evidence_unverified": 76,
+      "external_prior_relation": 209,
+      "formula_textbook_evidence_unverified": 251,
       "scope_inferred_from_subtopics": 75,
-      "self_referential_relation": 27,
-      "unresolved_relation": 928
+      "self_referential_relation": 28,
+      "unresolved_relation": 862
     },
-    "concepts_with_unresolved_relations": 420,
-    "formula_validation": "not_performed",
+    "concepts_with_unresolved_relations": 408,
+    "formula_validation": "machine_classified_and_curated",
     "equation_validation": "partial_machine_mass_charge_and_structural_review",
     "expert_review_required": true
   }

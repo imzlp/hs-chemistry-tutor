@@ -352,6 +352,179 @@
         "区分重复单元表示与精确分子组成表示。"
       ],
       "correction": "修正缩聚物端基确定且统一的错误表述"
+    },
+    "常见环境污染物的来源与防治": {
+      "representations": {
+        "equations": []
+      },
+      "correction": "删除把污染物来源—机理—防治逻辑链误作方程式的抽取"
+    },
+    "中和热的测定与计算": {
+      "representations": {
+        "equations": [],
+        "notations": [
+          "ΔH = −Q/n(H₂O)"
+        ]
+      },
+      "correction": "把中和热计算式从方程式迁移为记号"
+    },
+    "溶液酸碱性与pH的关系": {
+      "representations": {
+        "equations": [],
+        "notations": [
+          "pH",
+          "Kw",
+          "pH = −lg c(H⁺)",
+          "Kw = c(H⁺)·c(OH⁻)"
+        ]
+      },
+      "correction": "把pH定义式和水的离子积关系从方程式迁移为记号"
+    },
+    "水的电离及离子积常数": {
+      "representations": {
+        "notations": [
+          "Kw",
+          "Kw = c(H⁺)·c(OH⁻)"
+        ]
+      },
+      "correction": "拆分水的自偶电离方程式与Kw表达式"
+    },
+    "离子积（Q）与沉淀溶解平衡的判断": {
+      "representations": {
+        "equations": [],
+        "notations": [
+          "Q",
+          "Ksp",
+          "Q < Ksp",
+          "Q = Ksp",
+          "Q > Ksp"
+        ]
+      },
+      "correction": "把Q与Ksp的平衡判据从方程式迁移为关系式"
+    },
+    "醛基与醛类的定义及通式": {
+      "representations": {
+        "equations": []
+      },
+      "correction": "删除不是方程式的甲醛通式说明，并修正CnH2nO通式"
+    },
+    "溶度积常数（Ksp）及其表达式": {
+      "representations": {
+        "notations": [
+          "Ksp",
+          "Ksp = [c(Aⁿ⁺)]ᵐ·[c(Bᵐ⁻)]ⁿ"
+        ]
+      },
+      "correction": "拆分通用溶解平衡式与Ksp表达式"
+    },
+    "电离平衡常数的定义与意义": {
+      "representations": {
+        "notations": [
+          "Ka",
+          "Kb",
+          "Ka = [H⁺][A⁻]/[HA]"
+        ]
+      },
+      "correction": "拆分一元弱酸电离平衡式与Ka表达式"
+    },
+    "温度对合成氨工业条件的限制": {
+      "representations": {
+        "notations": [
+          "ΔH < 0"
+        ]
+      },
+      "correction": "拆分合成氨平衡式、放热条件与温度对平衡的影响"
+    },
+    "浓度对化学平衡的影响": {
+      "representations": {
+        "equations": [],
+        "notations": []
+      },
+      "correction": "纠正FeCl3与KSCN配位平衡的分子复分解写法"
+    },
+    "吉布斯自由能判据": {
+      "representations": {
+        "equations": [],
+        "notations": [
+          "ΔG",
+          "ΔH",
+          "ΔS",
+          "ΔG = ΔH − TΔS"
+        ]
+      },
+      "correction": "把吉布斯自由能判据从方程式迁移为热力学公式"
+    },
+    "酸碱指示剂变色原理": {
+      "representations": {
+        "notations": [
+          "pH"
+        ]
+      },
+      "correction": "明确HIn/In−为指示剂通用记号"
+    },
+    "钠与水的反应": {
+      "representations": {
+        "notations": []
+      },
+      "correction": "拆分钠与水的分子方程式和离子方程式"
+    },
+    "熵判据及其局限性": {
+      "representations": {
+        "equations": [],
+        "notations": [
+          "ΔS",
+          "ΔH",
+          "ΔG = ΔH − TΔS"
+        ]
+      },
+      "correction": "把熵判据说明从方程式迁移为热力学关系"
+    },
+    "浓度调控与原料循环利用": {
+      "representations": {
+        "notations": []
+      },
+      "correction": "拆分合成氨平衡式、转化率范围与循环工艺说明"
+    },
+    "温度对反应自发性的影响": {
+      "representations": {
+        "equations": [],
+        "notations": [
+          "ΔG",
+          "ΔH",
+          "ΔS",
+          "ΔG = ΔH − TΔS",
+          "T = ΔH/ΔS"
+        ]
+      },
+      "correction": "把自发性判据和临界温度关系从方程式迁移为热力学公式"
+    },
+    "氯气与水的反应及次氯酸性质": {
+      "representations": {
+        "notations": []
+      },
+      "correction": "拆分并规范化氯气水解平衡与次氯酸光照分解"
+    },
+    "反应热与焓变的定义及关系": {
+      "representations": {
+        "equations": [],
+        "notations": [
+          "ΔH",
+          "Qp = ΔH"
+        ]
+      },
+      "correction": "把恒压反应热与焓变关系从方程式迁移为热力学关系"
+    },
+    "酸、碱的本质": {
+      "representations": {
+        "notations": []
+      },
+      "correction": "拆分HCl与NaOH的电离方程式"
+    },
+    "非金属资源的提取原理": {
+      "representations": {
+        "notations": []
+      },
+      "correction": "补全I−氧化半反应并拆分为可配平的完整方程式"
     }
   }
 }

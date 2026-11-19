@@ -13,6 +13,11 @@ from pathlib import Path
 from typing import Any, Iterable
 
 from equation_balance import check_balance
+from formula_utils import (
+    classify_formula,
+    display_formula,
+    formula_syntax_errors,
+)
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -22,8 +27,19 @@ REVIEW_DIR = DATA_DIR / "review"
 SCHEMA_PATH = DATA_DIR / "schema" / "chem-concept-v1.schema.json"
 CONFUSABLE_SCHEMA_PATH = DATA_DIR / "schema" / "chem-confusable-pair-v1.schema.json"
 EQUATION_SCHEMA_PATH = DATA_DIR / "schema" / "chem-equation-review-v1.schema.json"
+EQUATION_EXTRACTION_SCHEMA_PATH = (
+    DATA_DIR / "schema" / "chem-equation-extraction-review-v1.schema.json"
+)
+FORMULA_SCHEMA_PATH = DATA_DIR / "schema" / "chem-formula-review-v1.schema.json"
+RELATION_REVIEW_SCHEMA_PATH = (
+    DATA_DIR / "schema" / "chem-relation-review-v1.schema.json"
+)
 LOCATOR_SCHEMA_PATH = DATA_DIR / "schema" / "chem-textbook-locator-v1.schema.json"
 EQUATION_REVIEW_PATH = REVIEW_DIR / "equation-review.jsonl"
+EQUATION_EXTRACTION_REVIEW_PATH = REVIEW_DIR / "equation-extraction-review.jsonl"
+FORMULA_REVIEW_PATH = REVIEW_DIR / "formula-review.jsonl"
+FORMULA_MANIFEST_PATH = REVIEW_DIR / "formula-review-manifest.json"
+RELATION_REVIEW_PATH = REVIEW_DIR / "relation-review.jsonl"
 EQUATION_MANIFEST_PATH = REVIEW_DIR / "manifest.json"
 LOCATOR_PATH = REVIEW_DIR / "textbook-locator.jsonl"
 LOCATOR_MANIFEST_PATH = REVIEW_DIR / "textbook-locator-manifest.json"
@@ -44,6 +60,12 @@ RELATION_METHODS = {
     "normalized_label",
     "external_prior",
     "none",
+}
+EQUATION_DOMAINS = {
+    "electrochemistry",
+    "organic_chemistry",
+    "inorganic_chemistry",
+    "equilibrium_chemistry",
 }
 STUDENT_META_RE = re.compile(
     r"教学中|教师|需强调|引导学生|课堂上|本知识点|教学重点|教学应|应强调|"
@@ -126,7 +148,11 @@ def main() -> int:
     confusable_pairs = read_jsonl(CANONICAL_DIR / "confusable-pairs.jsonl")
     review_sheet = read_jsonl(CANONICAL_DIR / "review-sheet.jsonl")
     equation_reviews = read_jsonl(EQUATION_REVIEW_PATH)
+    equation_extraction_reviews = read_jsonl(EQUATION_EXTRACTION_REVIEW_PATH)
+    formula_reviews = read_jsonl(FORMULA_REVIEW_PATH)
+    relation_reviews = read_jsonl(RELATION_REVIEW_PATH)
     equation_review_manifest = load_json_config(EQUATION_MANIFEST_PATH)
+    formula_review_manifest = load_json_config(FORMULA_MANIFEST_PATH)
     textbook_locators = read_jsonl(LOCATOR_PATH)
     textbook_locator_manifest = load_json_config(LOCATOR_MANIFEST_PATH)
 
@@ -235,6 +261,26 @@ def main() -> int:
         "canonical manifest structural-review equation count mismatch",
     )
     check(
+        model_manifest["formula_review"]["formula_reviews"]
+        == len(formula_reviews),
+        "canonical manifest formula review count mismatch",
+    )
+    check(
+        model_manifest["formula_review"]["formula_reviews"]
+        == formula_review_manifest["formula_reviews"],
+        "canonical manifest formula review manifest count mismatch",
+    )
+    check(
+        model_manifest["formula_review"]["canonical_concepts_covered"]
+        == formula_review_manifest["canonical_concepts_with_formulas"],
+        "canonical manifest formula concept coverage mismatch",
+    )
+    check(
+        equation_review_manifest["extraction_review"]["concepts"]
+        == len(equation_extraction_reviews),
+        "equation extraction review manifest count mismatch",
+    )
+    check(
         textbook_locator_manifest["source_occurrences"] == len(source_ids),
         "textbook locator occurrence count mismatch",
     )
@@ -327,7 +373,7 @@ def main() -> int:
         )
         equation_review_ids.add(review_id)
         check(
-            review["domain"] in {"electrochemistry", "organic_chemistry"},
+            review["domain"] in EQUATION_DOMAINS,
             f"{review_id}: invalid equation domain",
         )
         check(
@@ -580,18 +626,326 @@ def main() -> int:
         "equation review manifest evidence status mismatch",
     )
 
+    formula_review_ids: set[str] = set()
+    formula_review_by_concept: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    formula_review_pairs: set[tuple[str, str]] = set()
+    for review in formula_reviews:
+        review_id = review["formula_review_id"]
+        check(
+            review_id not in formula_review_ids,
+            f"duplicate formula review ID: {review_id}",
+        )
+        formula_review_ids.add(review_id)
+        check(
+            review["schema_version"] == "chem-formula-review-v1",
+            f"{review_id}: formula review schema version mismatch",
+        )
+        concept = concept_by_id.get(review["concept_id"])
+        check(concept is not None, f"{review_id}: unknown concept")
+        if concept is not None:
+            check(
+                concept["canonical_name"] == review["concept_name"],
+                f"{review_id}: concept name mismatch",
+            )
+            formula_review_by_concept[concept["concept_id"]].append(review)
+        pair = (review["concept_id"], review["formula"])
+        check(pair not in formula_review_pairs, f"{review_id}: duplicate concept/formula")
+        formula_review_pairs.add(pair)
+        check(
+            review["formula_kind"] == classify_formula(review["formula"]),
+            f"{review_id}: formula kind mismatch",
+        )
+        check(
+            review["display_formula"] == display_formula(review["formula"]),
+            f"{review_id}: formula display mismatch",
+        )
+        check(
+            not formula_syntax_errors(review["formula"]),
+            f"{review_id}: formula syntax errors",
+        )
+        check(
+            review["review_method"]
+            in {
+                "curated_formula_context",
+                "machine_syntax_and_role_classification",
+            },
+            f"{review_id}: invalid formula review method",
+        )
+        check(
+            review["checks"]
+            == {
+                "syntax": "passed",
+                "concept_scope": "typed_representation_not_identity_claim",
+                "textbook_context": "unverified_ai_summary",
+            },
+            f"{review_id}: formula checks mismatch",
+        )
+        check(
+            review["review_status"] == "machine_reviewed",
+            f"{review_id}: formula review status mismatch",
+        )
+        check(
+            review["human_verified"] is False,
+            f"{review_id}: formula review must not claim human verification",
+        )
+        check(
+            review["evidence_status"] == "ai_textbook_summary_unverified",
+            f"{review_id}: formula review evidence status mismatch",
+        )
+        verification = review["source_verification"]
+        check(
+            verification["status"] == "unverified_ai_summary_pages_only",
+            f"{review_id}: formula source verification status mismatch",
+        )
+        for field in ("publisher", "edition", "isbn", "quote", "quote_locator"):
+            check(
+                verification[field] is None,
+                f"{review_id}: formula source field {field} must be null",
+            )
+        check(
+            verification["page_ranges_inherited_from_source"] is True,
+            f"{review_id}: formula page provenance flag mismatch",
+        )
+        if concept is not None:
+            check(
+                set(review["source_occurrence_ids"])
+                == set(concept["provenance"]["occurrence_ids"]),
+                f"{review_id}: formula source occurrence coverage mismatch",
+            )
+        check(bool(review["source_refs"]), f"{review_id}: formula lacks source refs")
+        for ref in review["source_refs"]:
+            check(
+                ref["verification_status"]
+                == "unverified_ai_summary_pages_only",
+                f"{review_id}: formula source ref claims verification",
+            )
+
+    check(
+        len(formula_reviews) == formula_review_manifest["formula_reviews"],
+        "formula review manifest count mismatch",
+    )
+    check(
+        len(formula_review_by_concept)
+        == formula_review_manifest["canonical_concepts_with_formulas"],
+        "formula review manifest concept coverage mismatch",
+    )
+    check(
+        sum(
+            record["review_method"] == "curated_formula_context"
+            for record in formula_reviews
+        )
+        > 0,
+        "formula review lacks curated corrections",
+    )
+    check(
+        formula_review_manifest["human_verified"] is False,
+        "formula review manifest must not claim human verification",
+    )
+    check(
+        formula_review_manifest["evidence_status"]
+        == "ai_textbook_summary_unverified",
+        "formula review manifest evidence status mismatch",
+    )
+    check(
+        formula_review_manifest["source_verification"]
+        == {
+            "status": "unverified_ai_summary_pages_only",
+            "publisher_verified": 0,
+            "edition_verified": 0,
+            "isbn_verified": 0,
+            "quote_verified": 0,
+            "quote_locator_verified": 0,
+        },
+        "formula review manifest claims verified source metadata",
+    )
+    all_reviewed_formulas = {record["formula"] for record in formula_reviews}
+    check("CnH" not in all_reviewed_formulas, "truncated formula CnH remains")
+    check(
+        all(
+            record["formula"] != "C6H10O5"
+            for record in formula_reviews
+            if record["concept_name"]
+            in {
+                "淀粉与纤维素的结构及水解",
+                "单糖、寡糖和多糖的具体实例",
+                "纤维素的广泛用途",
+            }
+        ),
+        "polymer concept retains bare C6H10O5",
+    )
+    check(
+        "(C6H10O5)n" in all_reviewed_formulas,
+        "polymer repeat-unit formula is missing",
+    )
+    rhamnose_context = {
+        record["formula"]
+        for record in formula_reviews
+        if record["concept_name"] == "糖类的定义与分类"
+    }
+    check(
+        {"C6H12O5", "C5H10O4"} <= rhamnose_context,
+        "sugar contrast formulas were collapsed",
+    )
+
+    extraction_review_by_concept: dict[str, dict[str, Any]] = {}
+    extraction_ids: set[str] = set()
+    extraction_outcomes: Counter[str] = Counter()
+    for review in equation_extraction_reviews:
+        review_id = review["extraction_review_id"]
+        check(
+            review_id not in extraction_ids,
+            f"duplicate equation extraction review ID: {review_id}",
+        )
+        extraction_ids.add(review_id)
+        concept = concept_by_id.get(review["concept_id"])
+        check(concept is not None, f"{review_id}: unknown concept")
+        if concept is None:
+            continue
+        check(
+            review["concept_name"] == concept["canonical_name"],
+            f"{review_id}: concept name mismatch",
+        )
+        check(
+            review["concept_id"] not in extraction_review_by_concept,
+            f"{review_id}: duplicate concept extraction review",
+        )
+        extraction_review_by_concept[review["concept_id"]] = review
+        extraction_outcomes[review["outcome"]] += 1
+        expected_ids = sorted(
+            {
+                equation_review["review_id"]
+                for equation_review in equation_review_by_concept.get(
+                    concept["concept_id"], []
+                )
+            }
+        )
+        check(
+            review["canonical_equation_review_ids"] == expected_ids,
+            f"{review_id}: canonical equation review IDs mismatch",
+        )
+        check(
+            review["canonical_equations"]
+            == concept["representations"]["equations"],
+            f"{review_id}: canonical equations mismatch",
+        )
+        check(
+            set(review["source_occurrence_ids"])
+            == set(concept["provenance"]["occurrence_ids"]),
+            f"{review_id}: source occurrence coverage mismatch",
+        )
+        if review["outcome"] == "no_reaction_equation":
+            check(
+                not review["canonical_equation_review_ids"]
+                and not review["canonical_equations"],
+                f"{review_id}: no-equation outcome retains equation records",
+            )
+        else:
+            check(
+                bool(review["canonical_equation_review_ids"])
+                and bool(review["canonical_equations"]),
+                f"{review_id}: equation outcome lacks reviewed equations",
+            )
+        check(
+            review["review_status"] == "machine_reviewed"
+            and review["human_verified"] is False
+            and review["evidence_status"]
+            == "ai_textbook_summary_unverified",
+            f"{review_id}: extraction review status mismatch",
+        )
+    check(
+        equation_review_manifest["extraction_review"]["concepts"]
+        == len(equation_extraction_reviews),
+        "equation extraction review count mismatch",
+    )
+    check(
+        equation_review_manifest["extraction_review"]["outcomes"]
+        == dict(sorted(extraction_outcomes.items())),
+        "equation extraction review outcome counts mismatch",
+    )
+
     for concept in concepts:
         reviews = equation_review_by_concept.get(concept["concept_id"], [])
         quality = concept["quality"]
+        formula_records = formula_review_by_concept.get(concept["concept_id"], [])
+        formulas = concept["representations"]["formulas"]
+        expected_formula_ids = [
+            record["formula_review_id"]
+            for record in sorted(
+                formula_records,
+                key=lambda record: formulas.index(record["formula"])
+                if record["formula"] in formulas
+                else len(formulas),
+            )
+        ]
+        check(
+            quality["formula_review_ids"] == expected_formula_ids,
+            f"{concept['concept_id']}: formula review IDs mismatch",
+        )
+        if not formulas:
+            check(
+                quality["formula_validation_status"] == "not_applicable",
+                f"{concept['concept_id']}: formula-less concept has formula status",
+            )
+        else:
+            check(
+                {record["formula"] for record in formula_records} == set(formulas),
+                f"{concept['concept_id']}: formula review coverage mismatch",
+            )
+            expected_formula_status = (
+                "curated_corrected"
+                if any(
+                    record["review_method"] == "curated_formula_context"
+                    for record in formula_records
+                )
+                else "machine_classified"
+            )
+            check(
+                quality["formula_validation_status"] == expected_formula_status,
+                f"{concept['concept_id']}: formula validation status mismatch",
+            )
+        formula_issue_codes = {
+            detail["code"] for detail in quality["issue_details"]
+        }
+        if formulas:
+            check(
+                "formula_extraction_unverified" not in formula_issue_codes,
+                f"{concept['concept_id']}: reviewed concept retains formula warning",
+            )
+            check(
+                "formula_textbook_evidence_unverified" in formula_issue_codes,
+                f"{concept['concept_id']}: reviewed concept hides formula evidence gap",
+            )
+
+        extraction_review = extraction_review_by_concept.get(concept["concept_id"])
+        check(
+            quality["equation_extraction_review_id"]
+            == (
+                extraction_review["extraction_review_id"]
+                if extraction_review is not None
+                else None
+            ),
+            f"{concept['concept_id']}: equation extraction review ID mismatch",
+        )
         if not reviews:
             check(
                 quality["equation_review_ids"] == [],
                 f"{concept['concept_id']}: unreviewed concept has equation review IDs",
             )
-            check(
-                quality["equation_validation_status"] == "not_reviewed",
-                f"{concept['concept_id']}: unreviewed concept has validation status",
-            )
+            if extraction_review is not None and not concept["representations"]["equations"]:
+                check(
+                    quality["equation_validation_status"]
+                    == "reviewed_no_equation",
+                    f"{concept['concept_id']}: no-equation review status mismatch",
+                )
+                check(
+                    extraction_review["outcome"] == "no_reaction_equation",
+                    f"{concept['concept_id']}: no-equation concept has contradiction",
+                )
+            else:
+                check(
+                    quality["equation_validation_status"] == "not_reviewed",
+                    f"{concept['concept_id']}: unreviewed concept has validation status",
+                )
             continue
         ordered = sorted(
             reviews,
@@ -1322,6 +1676,138 @@ def main() -> int:
             f"relation gap lacks source context: {row['target_label']}",
         )
 
+    relation_label_counts = Counter(
+        relation["target_label"] for relation in relations
+    )
+    relation_label_statuses: dict[str, set[str]] = defaultdict(set)
+    relation_label_targets: dict[str, set[str]] = defaultdict(set)
+    relation_label_sources: dict[str, set[str]] = defaultdict(set)
+    for relation in relations:
+        label = relation["target_label"]
+        relation_label_statuses[label].add(relation["resolution_status"])
+        relation_label_sources[label].add(relation["source_concept_id"])
+        if relation.get("target_concept_id"):
+            relation_label_targets[label].add(relation["target_concept_id"])
+
+    relation_review_ids: set[str] = set()
+    relation_review_labels: set[str] = set()
+    relation_dispositions = Counter()
+    expected_dispositions = {
+        "reviewed_mapping": {"resolved"},
+        "reviewed_external_prior": {"external_prior"},
+        "reviewed_missing_concept": {"unresolved"},
+        "reviewed_aggregate_label": {"unresolved"},
+        "reviewed_too_broad": {"unresolved"},
+        "automatic_alias_or_exact_match": {"resolved"},
+        "self_reference": {"self_reference"},
+        "partially_self_referential": {"resolved", "self_reference"},
+        "ambiguous": {"ambiguous"},
+        "unreviewed_gap": {"unresolved"},
+    }
+    for review in relation_reviews:
+        review_id = review["review_id"]
+        check(
+            review_id not in relation_review_ids,
+            f"duplicate relation review ID: {review_id}",
+        )
+        relation_review_ids.add(review_id)
+        label = review["target_label"]
+        check(
+            label not in relation_review_labels,
+            f"duplicate relation review label: {label}",
+        )
+        relation_review_labels.add(label)
+        check(
+            label in relation_label_counts,
+            f"{review_id}: relation review label absent from relation table",
+        )
+        if label not in relation_label_counts:
+            continue
+        check(
+            review["relation_count"] == relation_label_counts[label],
+            f"{review_id}: relation review count mismatch",
+        )
+        check(
+            set(review["resolution_statuses"])
+            == relation_label_statuses[label],
+            f"{review_id}: relation review statuses mismatch",
+        )
+        disposition = review["review_disposition"]
+        relation_dispositions[disposition] += 1
+        check(
+            disposition in expected_dispositions,
+            f"{review_id}: invalid relation review disposition",
+        )
+        if disposition in expected_dispositions:
+            check(
+                set(review["resolution_statuses"])
+                == expected_dispositions[disposition],
+                f"{review_id}: disposition/status mismatch",
+            )
+        check(
+            set(review["target_concept_ids"])
+            == relation_label_targets[label],
+            f"{review_id}: target concept IDs mismatch",
+        )
+        check(
+            set(review["source_concept_ids"])
+            == relation_label_sources[label],
+            f"{review_id}: source concept IDs mismatch",
+        )
+        check(
+            review["review_priority"] in {"high", "medium", "low"},
+            f"{review_id}: invalid relation review priority",
+        )
+        check(
+            review["review_status"] == "machine_reviewed"
+            and review["human_verified"] is False
+            and review["evidence_status"]
+            == "ai_textbook_summary_unverified",
+            f"{review_id}: relation review status mismatch",
+        )
+    check(
+        relation_review_labels == set(relation_label_counts),
+        "relation review does not cover every relation target label",
+    )
+    check(
+        len(relation_reviews) == len(relation_label_counts),
+        "relation review contains duplicate or missing labels",
+    )
+    review_manifest = model_manifest["relation_review"]
+    check(
+        review_manifest["labels"] == len(relation_reviews),
+        "relation review manifest label count mismatch",
+    )
+    check(
+        review_manifest["dispositions"]
+        == dict(sorted(relation_dispositions.items())),
+        "relation review manifest disposition counts mismatch",
+    )
+    check(
+        review_manifest["reviewed_mappings"]
+        == relation_dispositions["reviewed_mapping"],
+        "relation review manifest reviewed-mapping count mismatch",
+    )
+    check(
+        review_manifest["reviewed_gap_labels"]
+        == (
+            relation_dispositions["reviewed_missing_concept"]
+            + relation_dispositions["reviewed_aggregate_label"]
+            + relation_dispositions["reviewed_too_broad"]
+        ),
+        "relation review manifest reviewed-gap count mismatch",
+    )
+    check(
+        review_manifest["unreviewed_gap_labels"]
+        == relation_dispositions["unreviewed_gap"],
+        "relation review manifest unreviewed-gap count mismatch",
+    )
+    check(
+        review_manifest["partially_self_referential_labels"]
+        == relation_dispositions["partially_self_referential"],
+        "relation review manifest partial-self-reference count mismatch",
+    )
+
     # P0/P1/P2 overrides must still be present in source and marked on the
     # corresponding canonical concepts.
     override_payloads = []
@@ -1357,6 +1843,11 @@ def main() -> int:
     schema = load_json_config(SCHEMA_PATH)
     confusable_schema = load_json_config(CONFUSABLE_SCHEMA_PATH)
     equation_schema = load_json_config(EQUATION_SCHEMA_PATH)
+    equation_extraction_schema = load_json_config(
+        EQUATION_EXTRACTION_SCHEMA_PATH
+    )
+    formula_schema = load_json_config(FORMULA_SCHEMA_PATH)
+    relation_review_schema = load_json_config(RELATION_REVIEW_SCHEMA_PATH)
     locator_schema = load_json_config(LOCATOR_SCHEMA_PATH)
     try:
         import jsonschema
@@ -1387,6 +1878,38 @@ def main() -> int:
                     f"equation schema {review.get('review_id', '<unknown>')}: "
                     f"{error.json_path}: {error.message}"
                 )
+        equation_extraction_validator = jsonschema.Draft202012Validator(
+            equation_extraction_schema
+        )
+        for review in equation_extraction_reviews:
+            for error in sorted(
+                equation_extraction_validator.iter_errors(review), key=str
+            ):
+                errors.append(
+                    "equation extraction schema "
+                    f"{review.get('extraction_review_id', '<unknown>')}: "
+                    f"{error.json_path}: {error.message}"
+                )
+        formula_validator = jsonschema.Draft202012Validator(formula_schema)
+        for review in formula_reviews:
+            for error in sorted(
+                formula_validator.iter_errors(review), key=str
+            ):
+                errors.append(
+                    f"formula schema {review.get('formula_review_id', '<unknown>')}: "
+                    f"{error.json_path}: {error.message}"
+                )
+        relation_review_validator = jsonschema.Draft202012Validator(
+            relation_review_schema
+        )
+        for review in relation_reviews:
+            for error in sorted(
+                relation_review_validator.iter_errors(review), key=str
+            ):
+                errors.append(
+                    f"relation review schema {review.get('review_id', '<unknown>')}: "
+                    f"{error.json_path}: {error.message}"
+                )
         locator_validator = jsonschema.Draft202012Validator(locator_schema)
         for locator in textbook_locators:
             for error in sorted(
@@ -1400,8 +1923,9 @@ def main() -> int:
     # Keep machine extraction visible instead of presenting it as verified
     # chemistry. No formula/equation is certified by this validator.
     check(
-        model_manifest["quality"]["formula_validation"] == "not_performed",
-        "formula validation status must not claim verification",
+        model_manifest["quality"]["formula_validation"]
+        == "machine_classified_and_curated",
+        "formula validation status must remain machine-reviewed",
     )
     check(
         model_manifest["quality"]["equation_validation"]
@@ -1423,7 +1947,10 @@ def main() -> int:
         "occurrences": len(occurrences),
         "relations": dict(relation_counts),
         "review_queue": len(review_queue),
+        "formula_reviews": len(formula_reviews),
         "equation_reviews": len(equation_reviews),
+        "equation_extraction_reviews": len(equation_extraction_reviews),
+        "relation_reviews": len(relation_reviews),
         "textbook_locators": len(textbook_locators),
         "errors": len(errors),
         "warnings": len(warnings),

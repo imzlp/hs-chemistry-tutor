@@ -1,0 +1,46 @@
+{
+  "schema_version": "chem-formula-review-manifest-v1",
+  "generated_at": "2026-11-19",
+  "override_catalog_version": 1,
+  "formula_reviews": 754,
+  "canonical_concepts_with_formulas": 251,
+  "unique_formula_strings": 164,
+  "curated_concepts": 10,
+  "review_methods": {
+    "curated_formula_context": 24,
+    "machine_syntax_and_role_classification": 730
+  },
+  "formula_kinds": {
+    "condensed_formula": 35,
+    "element_symbol": 2,
+    "generic_formula": 4,
+    "indicator_generic": 1,
+    "ion_formula": 4,
+    "molecular_formula": 703,
+    "polymer_formula": 5
+  },
+  "roles": {
+    "class_general_formula": 4,
+    "contrast_example": 6,
+    "indicator_equilibrium": 1,
+    "mentioned_species": 730,
+    "representative_substance": 13
+  },
+  "source_verification": {
+    "status": "unverified_ai_summary_pages_only",
+    "publisher_verified": 0,
+    "edition_verified": 0,
+    "isbn_verified": 0,
+    "quote_verified": 0,
+    "quote_locator_verified": 0
+  },
+  "review_status": "machine_reviewed",
+  "human_verified": false,
+  "evidence_status": "ai_textbook_summary_unverified",
+  "limitations": [
+    "机器审核只验证化学式语法、概念范围和表示类型，不认证物质存在、教材写法或具体实验条件。",
+    "formulas 是概念范围内出现的化学式集合，不表示其中每一项都是该概念的中心物质；中心角色由 role 字段区分。",
+    "所有页码继承自 AI 教材摘要，未核对出版社、版次、ISBN、版权页或印刷原文。",
+    "HIn 等通用记号、含 n 的聚合物/通式以及受保护占位符不能被当作具体分子式解释。"
+  ]
+}

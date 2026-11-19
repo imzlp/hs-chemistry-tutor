@@ -1,8 +1,9 @@
-# 电化学与有机反应方程式复核
+# 高中化学方程式复核
 
 复核日期：2026-11-19
 
-复核范围：电化学、有机化学中的 46 组反应情境，共 107 条方程式。
+复核范围：电化学、有机化学、无机化学和平衡化学中的 56 组反应情境，
+共 122 条方程式。
 
 ## 1. 结论
 
@@ -16,12 +17,14 @@ evidence_status = ai_textbook_summary_unverified
 
 完成情况：
 
-- 93 条方程式通过组成式层面的原子守恒和净电荷守恒机器校验；
-- 14 条聚合物、通式或结构片段方程式只做结构审查，不进行单一分子计量配平；
-- 107 条均有明确的介质、条件、角色、教学说明、来源 occurrence 和来源页码；
-- 107 条均保留 `source_verification.publisher/edition/isbn/quote/quote_locator = null`；
-- 65 个规范概念接入审核方程；
-- 20 个未覆盖概念仍保留 `equation_extraction_unverified`，没有被静默隐藏。
+- 105 条方程式通过组成式层面的原子守恒和净电荷守恒机器校验；
+- 17 条聚合物、通式或结构片段方程式只做结构审查，不进行单一分子计量配平；
+- 按领域统计：电化学 57 条、有机化学 50 条、无机化学 8 条、平衡化学 7 条；
+- 122 条均有明确的介质、条件、角色、教学说明、来源 occurrence 和来源页码；
+- 122 条均保留 `source_verification.publisher/edition/isbn/quote/quote_locator = null`；
+- 76 个规范概念接入审核方程；
+- 原 20 个带 `equation_extraction_unverified` 的概念已完成逐条抽取复核，
+  该问题代码已清零。
 
 每条 `checks` 还显式记录：
 
@@ -46,9 +49,11 @@ state_symbols = not_validated
 scripts/equation_review_catalog.json             结构化方程式复核目录（非人工签字）
 scripts/equation_balance.py                      保守的组成式原子/电荷校验器
 scripts/build_equation_review.py                 生成逐条方程审核记录
-data/review/equation-review.jsonl                107 条方程审核记录
+data/review/equation-review.jsonl                122 条方程审核记录
+data/review/equation-extraction-review.jsonl     20 个概念的抽取问题处置
 data/review/manifest.json                        方程审核统计和限制
 data/schema/chem-equation-review-v1.schema.json  严格 JSON Schema
+data/schema/chem-equation-extraction-review-v1.schema.json
 ```
 
 `data/canonical/concepts.jsonl` 中已覆盖概念会获得：
@@ -59,6 +64,7 @@ data/schema/chem-equation-review-v1.schema.json  严格 JSON Schema
   - `machine_mass_charge_checked`；
   - `structural_reviewed`；
   - `machine_and_structural_reviewed`；
+  - `reviewed_no_equation`；
   - `not_reviewed`；
 - `quality.issue_details` 中的 `equation_textbook_evidence_unverified`。
 
@@ -96,6 +102,21 @@ machine_expression = null
 
 不能把它统计成“已配平”或“已机器验证”。
 
+### 3.3 `equation_extraction_review`
+
+原来源中有 20 个概念被标记为 `equation_extraction_unverified`。本轮没有把
+这些概念直接删掉或强行补方程，而是逐概念检查抽取文本的真实语义：
+
+| 结论 | 概念数 | 处理 |
+|---|---:|---|
+| `no_reaction_equation` | 9 | 文本是定义、热力学关系或说明，不保留反应方程 |
+| `reaction_equations` | 9 | 确有反应方程，进入统一方程审核目录 |
+| `mixed_reclassified` | 2 | 同一段文本混合方程与关系式，拆分后分别处理 |
+
+逐条处置保存在 `data/review/equation-extraction-review.jsonl`，包含原始问题、
+结论、分类、示例和对应的 `eqr_...` 审核 ID。这样“没有反应方程”和
+“漏抽方程”是两种显式状态，不会再用同一种告警代码混淆。
+
 ## 4. 本轮修正
 
 本轮确认并修正了以下高风险问题：
@@ -114,6 +135,12 @@ machine_expression = null
 | 原电池用镁铝氢氧化钠电池说明正极反应 | 改用燃料电池和 PbO2 正极活性物质 |
 | 乙醇与钠被笼统归为“广义取代” | 明确断 O–H 键，不属于卤代烃式亲核取代 |
 | 缩聚端基被说成引发剂残留 | 明确来自未反应官能团，受配比、转化率和封端方式影响 |
+| 水的电离只写成文字关系 | 补充 `H2O + H2O ⇌ H3O+ + OH-` 并校验电荷 |
+| 合成氨缺少可逆平衡表达 | 补充 `N2 + 3H2 ⇌ 2NH3` 及条件说明 |
+| `Fe3+` 与 `SCN-` 只给文字显色 | 补充 `Fe3+ + SCN- ⇌ [Fe(SCN)]2+` |
+| 指示剂只写 `HIn` | 明确 `HIn ⇌ H+ + In-` 是通用示意，不代表具体指示剂 |
+| 钠与水、氯气水解、HCl/NaOH 电离混写 | 拆分为分子式和离子式，避免同一行承担两种语义 |
+| 碘离子被 H2O2/Cl2 氧化只有结论 | 补充完整氧化还原方程并校验原子与电荷 |
 
 ## 5. 使用规则
 
