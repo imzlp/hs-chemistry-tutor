@@ -1,0 +1,90 @@
+{
+  "schema_version": "chem-model-v1",
+  "generated_at": "2026-11-19",
+  "source": "data/explicit and data/teaching",
+  "source_books": 5,
+  "source_records": {
+    "explicit": 562,
+    "teaching": 562
+  },
+  "source_occurrences": 562,
+  "canonical_concepts": 507,
+  "confusable_pairs": 15,
+  "review_sheet_rows": 507,
+  "review_sheet_priorities": {
+    "high": 32,
+    "medium": 475
+  },
+  "manual_merge_groups": 37,
+  "auto_merged_groups": 470,
+  "review_status": "machine_reviewed",
+  "review_method": "rule_assisted_machine_review_v2",
+  "evidence_status": "ai_textbook_summary_unverified",
+  "human_verified": false,
+  "corrections": {
+    "p0": 10,
+    "p1": 19,
+    "p2": 38,
+    "canonical_content_overrides": 101
+  },
+  "relations": {
+    "resolved": 943,
+    "unresolved": 931,
+    "ambiguous": 1,
+    "self_reference": 28,
+    "external_prior": 197
+  },
+  "relation_gaps": {
+    "labels": 959,
+    "relations": 1157,
+    "unresolved": 931,
+    "ambiguous": 1,
+    "self_reference": 28,
+    "external_prior": 197
+  },
+  "ambiguous_aliases": 22,
+  "ambiguous_alias_labels": [
+    "二糖水解",
+    "共价键定义",
+    "分子形状",
+    "加聚反应",
+    "化学键类型",
+    "同周期元素性质递变规律",
+    "吸水树脂",
+    "毒品危害",
+    "液晶",
+    "牺牲阳极法",
+    "电化学腐蚀",
+    "电子式",
+    "电子式书写",
+    "电解法冶炼金属",
+    "离子键与共价键",
+    "离子键定义",
+    "第三周期元素性质变化",
+    "等离子体",
+    "缩聚反应",
+    "葡萄糖性质",
+    "醛基检验",
+    "非极性键"
+  ],
+  "quality": {
+    "review_method": "rule_assisted_machine_review_v2",
+    "concepts_with_open_issues": 497,
+    "blocking_concepts": 0,
+    "issue_codes": {
+      "ambiguous_alias_omitted": 42,
+      "ambiguous_relation": 1,
+      "boundary_extraction_unverified": 343,
+      "equation_extraction_unverified": 24,
+      "external_prior_relation": 178,
+      "formula_extraction_unverified": 251,
+      "scope_inferred_from_subtopics": 77,
+      "self_referential_relation": 27,
+      "unresolved_relation": 928
+    },
+    "concepts_with_unresolved_relations": 420,
+    "formula_validation": "not_performed",
+    "equation_validation": "not_performed",
+    "expert_review_required": true
+  }
+}

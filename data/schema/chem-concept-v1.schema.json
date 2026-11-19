@@ -1,0 +1,248 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/schemas/chem-concept-v1.schema.json",
+  "title": "High-school chemistry canonical concept",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "concept_id",
+    "canonical_name",
+    "subject",
+    "curriculum",
+    "concept_type",
+    "aliases",
+    "subtopics",
+    "definition",
+    "core_ideas",
+    "representations",
+    "examples",
+    "non_examples",
+    "relations",
+    "teaching",
+    "misconceptions",
+    "assessment",
+    "provenance",
+    "quality"
+  ],
+  "properties": {
+    "schema_version": {"const": "chem-concept-v1"},
+    "concept_id": {"type": "string", "pattern": "^chem_[0-9a-f]{12}$"},
+    "canonical_name": {"type": "string", "minLength": 1},
+    "subject": {"const": "chemistry"},
+    "curriculum": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["level", "module", "grade_band"],
+      "properties": {
+        "level": {"const": "high_school"},
+        "module": {"type": "string", "minLength": 1},
+        "grade_band": {"enum": ["compulsory", "elective"]}
+      }
+    },
+    "concept_type": {
+      "enum": [
+        "core_concept",
+        "property",
+        "process",
+        "method",
+        "representation",
+        "application",
+        "history",
+        "safety",
+        "cross_disciplinary"
+      ]
+    },
+    "aliases": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "uniqueItems": true
+    },
+    "subtopics": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "definition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["statement", "scope", "conditions", "exceptions", "boundary_notes"],
+      "properties": {
+        "statement": {"type": "string", "minLength": 1},
+        "scope": {"type": "string"},
+        "conditions": {"type": "array", "items": {"type": "string"}},
+        "exceptions": {"type": "array", "items": {"type": "string"}},
+        "boundary_notes": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "core_ideas": {"type": "array", "items": {"type": "string"}},
+    "representations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["formulas", "equations", "notations"],
+      "properties": {
+        "formulas": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "equations": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "notations": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+      }
+    },
+    "examples": {"type": "array", "items": {"type": "string"}},
+    "non_examples": {"type": "array", "items": {"type": "string"}},
+    "relations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["prerequisites", "related", "confusable"],
+      "properties": {
+        "prerequisites": {
+          "type": "array",
+          "items": {"type": "string", "pattern": "^chem_[0-9a-f]{12}$"},
+          "uniqueItems": true
+        },
+        "related": {
+          "type": "array",
+          "items": {"type": "string", "pattern": "^chem_[0-9a-f]{12}$"},
+          "uniqueItems": true
+        },
+        "confusable": {
+          "type": "array",
+          "items": {"type": "string", "pattern": "^chem_[0-9a-f]{12}$"},
+          "uniqueItems": true
+        }
+      }
+    },
+    "teaching": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["student_explanation", "teacher_notes", "teaching_sequence", "analogy"],
+      "properties": {
+        "student_explanation": {"type": "string", "minLength": 1},
+        "teacher_notes": {"type": "array", "items": {"type": "string"}},
+        "teaching_sequence": {"type": "array", "items": {"type": "string"}},
+        "analogy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["text", "limitations"],
+          "properties": {
+            "text": {"type": "string"},
+            "limitations": {"type": "string"}
+          }
+        }
+      }
+    },
+    "misconceptions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["statement", "correction", "source_occurrence_ids"],
+        "properties": {
+          "statement": {"type": "string", "minLength": 1},
+          "correction": {"type": "string", "minLength": 1},
+          "source_occurrence_ids": {
+            "type": "array",
+            "items": {"type": "string", "pattern": "^kp_[0-9a-f]{12}$"},
+            "uniqueItems": true
+          }
+        }
+      }
+    },
+    "assessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "common_question_types",
+        "typical_traps",
+        "practice_generation_hints",
+        "difficulty"
+      ],
+      "properties": {
+        "common_question_types": {"type": "array", "items": {"type": "string"}},
+        "typical_traps": {"type": "array", "items": {"type": "string"}},
+        "practice_generation_hints": {"type": "array", "items": {"type": "string"}},
+        "difficulty": {"enum": ["easy", "medium", "hard"]}
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "occurrence_ids",
+        "primary_explicit_occurrence_id",
+        "primary_teaching_occurrence_id",
+        "definition_origin",
+        "evidence_status",
+        "source_fingerprint",
+        "books",
+        "chapters",
+        "textbook_refs"
+      ],
+      "properties": {
+        "occurrence_ids": {
+          "type": "array",
+          "items": {"type": "string", "pattern": "^kp_[0-9a-f]{12}$"},
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "primary_explicit_occurrence_id": {
+          "type": "string",
+          "pattern": "^kp_[0-9a-f]{12}$"
+        },
+        "primary_teaching_occurrence_id": {
+          "type": "string",
+          "pattern": "^kp_[0-9a-f]{12}$"
+        },
+        "definition_origin": {
+          "enum": [
+            "explicit_definition",
+            "canonical_group_override",
+            "canonical_content_override"
+          ]
+        },
+        "evidence_status": {
+          "const": "ai_textbook_summary_unverified"
+        },
+        "source_fingerprint": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "books": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "chapters": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "textbook_refs": {"type": "array", "items": {"type": "object"}}
+      }
+    },
+    "quality": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "review_status",
+        "human_verified",
+        "confidence",
+        "quality_flags",
+        "corrections",
+        "open_issues",
+        "issue_details",
+        "evidence_status"
+      ],
+      "properties": {
+        "review_status": {
+          "enum": ["machine_reviewed", "needs_expert_review", "expert_verified"]
+        },
+        "human_verified": {"type": "boolean"},
+        "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+        "quality_flags": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "corrections": {"type": "array", "items": {"type": "string"}},
+        "open_issues": {"type": "array", "items": {"type": "string"}},
+        "issue_details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["code", "severity", "message"],
+            "properties": {
+              "code": {"type": "string", "minLength": 1},
+              "severity": {"enum": ["review", "blocking"]},
+              "message": {"type": "string", "minLength": 1},
+              "target_label": {"type": "string"}
+            }
+          }
+        },
+        "evidence_status": {
+          "const": "ai_textbook_summary_unverified"
+        }
+      }
+    }
+  }
+}

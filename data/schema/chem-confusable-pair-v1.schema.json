@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/schemas/chem-confusable-pair-v1.schema.json",
+  "title": "High-school chemistry confusable concept pair",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "pair_id",
+    "left_concept_id",
+    "left_name",
+    "right_concept_id",
+    "right_name",
+    "dimensions",
+    "distinction",
+    "review_status",
+    "human_verified",
+    "evidence_status"
+  ],
+  "properties": {
+    "schema_version": {"const": "chem-confusable-pair-v1"},
+    "pair_id": {"type": "string", "pattern": "^cmp_[0-9a-f]{12}$"},
+    "left_concept_id": {"type": "string", "pattern": "^chem_[0-9a-f]{12}$"},
+    "left_name": {"type": "string", "minLength": 1},
+    "right_concept_id": {"type": "string", "pattern": "^chem_[0-9a-f]{12}$"},
+    "right_name": {"type": "string", "minLength": 1},
+    "dimensions": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "distinction": {"type": "string", "minLength": 1},
+    "review_status": {"const": "machine_reviewed"},
+    "human_verified": {"const": false},
+    "evidence_status": {"const": "ai_textbook_summary_unverified"}
+  }
+}
