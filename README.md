@@ -1,12 +1,16 @@
 # 高中化学知识指南
 
-这是一个可直接部署到 GitHub Pages 的纯静态知识库。根目录的 `index.html`
-在浏览器中读取 `data/` 下的 JSONL 并展示教材知识点。
+这是一个可直接部署到 GitHub Pages 的纯静态教学原型。根目录的 `index.html`
+在浏览器中读取规范概念、教材出现记录、公式/方程审核和关系处置台账，
+提供学生视角、教师视角与证据边界展示。
 
 ## 目录
 
 ```text
-index.html                  前端（静态，运行时 fetch JSONL）
+index.html                  教学原型入口（静态，运行时 fetch JSONL）
+app.css                     原型样式与响应式布局
+app.js                      概念树、搜索、详情和审核状态交互
+favicon.svg                 原型图标
 data/
   manifest.json             教材清单
   explicit/*.jsonl          教材原始出现记录 (kp-explicit-ai-v1)
@@ -83,6 +87,25 @@ scripts/
 [`docs/formula-review.md`](docs/formula-review.md)，教材定位状态见
 [`docs/textbook-verification.md`](docs/textbook-verification.md)。
 
+## 教学原型
+
+当前原型已经接入以下数据层：
+
+- `data/canonical/concepts.jsonl`：按规范概念展示定义、边界、教学步骤、
+  易错点、考法和证据；
+- `data/review/formula-review.jsonl`：展示化学式的类型、角色和规则修订状态；
+- `data/review/equation-review.jsonl`：展示方程情境、介质、条件、机器校验和
+  结构审查状态；
+- `data/canonical/relations.jsonl` 与 `relation-review.jsonl`：可点击跳转已解析
+  关系，同时显式列出未解析、歧义、自引用和外部前置缺口；
+- `data/review/textbook-locator.jsonl` 的边界由页面统一说明：页码来自 AI 摘要，
+  出版社、版次、ISBN 和原文仍未核验。
+
+原型支持学生/教师视角切换。教师视角额外显示备课提示、命题提示、开放问题、
+高优先级复核概念和内部记录 ID；学生视角不展示教师备课内容，但始终保留
+“未人工审定”的证据提示。学习进度只保存在浏览器 `localStorage`，不是服务端
+学习记录。
+
 ## 更新与校验
 
 在仓库根目录执行：
@@ -115,6 +138,8 @@ python3 scripts/validate_canonical_model.py --strict-schema
 python3 -m http.server 8000
 # 打开 http://127.0.0.1:8000
 ```
+
+请通过 HTTP 服务访问；直接双击 `index.html` 会因浏览器限制无法 fetch JSONL。
 
 ## 使用边界
 
