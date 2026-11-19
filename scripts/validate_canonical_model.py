@@ -12,12 +12,21 @@ from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any, Iterable
 
+from equation_balance import check_balance
+
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT / "data"
 CANONICAL_DIR = DATA_DIR / "canonical"
+REVIEW_DIR = DATA_DIR / "review"
 SCHEMA_PATH = DATA_DIR / "schema" / "chem-concept-v1.schema.json"
 CONFUSABLE_SCHEMA_PATH = DATA_DIR / "schema" / "chem-confusable-pair-v1.schema.json"
+EQUATION_SCHEMA_PATH = DATA_DIR / "schema" / "chem-equation-review-v1.schema.json"
+LOCATOR_SCHEMA_PATH = DATA_DIR / "schema" / "chem-textbook-locator-v1.schema.json"
+EQUATION_REVIEW_PATH = REVIEW_DIR / "equation-review.jsonl"
+EQUATION_MANIFEST_PATH = REVIEW_DIR / "manifest.json"
+LOCATOR_PATH = REVIEW_DIR / "textbook-locator.jsonl"
+LOCATOR_MANIFEST_PATH = REVIEW_DIR / "textbook-locator-manifest.json"
 P0_PATH = ROOT / "scripts" / "p0_content_overrides.json"
 P1_PATH = ROOT / "scripts" / "p1_content_overrides.json"
 P2_PATH = ROOT / "scripts" / "p2_content_overrides.json"
@@ -116,6 +125,10 @@ def main() -> int:
     relation_gaps = read_jsonl(CANONICAL_DIR / "relation-gaps.jsonl")
     confusable_pairs = read_jsonl(CANONICAL_DIR / "confusable-pairs.jsonl")
     review_sheet = read_jsonl(CANONICAL_DIR / "review-sheet.jsonl")
+    equation_reviews = read_jsonl(EQUATION_REVIEW_PATH)
+    equation_review_manifest = load_json_config(EQUATION_MANIFEST_PATH)
+    textbook_locators = read_jsonl(LOCATOR_PATH)
+    textbook_locator_manifest = load_json_config(LOCATOR_MANIFEST_PATH)
 
     book_ids = [book["book_id"] for book in manifest["books"]]
     source_explicit: dict[str, dict[str, Any]] = {}
@@ -200,6 +213,35 @@ def main() -> int:
         == sum(row["relation_count"] for row in relation_gaps),
         "canonical manifest relation-gap relation count mismatch",
     )
+    check(
+        model_manifest["equation_review"]["equations"] == len(equation_reviews),
+        "canonical manifest equation review count mismatch",
+    )
+    check(
+        model_manifest["equation_review"]["review_sets"]
+        == equation_review_manifest["review_sets"],
+        "canonical manifest equation review-set count mismatch",
+    )
+    check(
+        model_manifest["equation_review"]["machine_mass_charge_checked"]
+        == equation_review_manifest["review_methods"][
+            "machine_mass_charge_check"
+        ],
+        "canonical manifest machine-checked equation count mismatch",
+    )
+    check(
+        model_manifest["equation_review"]["structural_reviewed"]
+        == equation_review_manifest["review_methods"]["structural_review"],
+        "canonical manifest structural-review equation count mismatch",
+    )
+    check(
+        textbook_locator_manifest["source_occurrences"] == len(source_ids),
+        "textbook locator occurrence count mismatch",
+    )
+    check(
+        textbook_locator_manifest["locator_rows"] == len(textbook_locators),
+        "textbook locator row count mismatch",
+    )
 
     concept_by_id = {concept["concept_id"]: concept for concept in concepts}
     check(
@@ -265,6 +307,336 @@ def main() -> int:
         set(occurrence_by_id) == source_ids,
         "occurrence IDs do not exactly cover source kp_ids",
     )
+
+    equation_review_ids: set[str] = set()
+    equation_review_by_concept: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    equation_set_metadata: dict[str, dict[str, Any]] = {}
+    equation_set_roles: dict[str, set[str]] = defaultdict(set)
+    equation_method_counts: Counter[str] = Counter()
+    equation_domain_counts: Counter[str] = Counter()
+    equation_occurrence_coverage: set[str] = set()
+    for review in equation_reviews:
+        review_id = review["review_id"]
+        check(
+            review["schema_version"] == "chem-equation-review-v1",
+            f"{review_id}: equation review schema version mismatch",
+        )
+        check(
+            review_id not in equation_review_ids,
+            f"duplicate equation review ID: {review_id}",
+        )
+        equation_review_ids.add(review_id)
+        check(
+            review["domain"] in {"electrochemistry", "organic_chemistry"},
+            f"{review_id}: invalid equation domain",
+        )
+        check(
+            review["review_status"] == "machine_reviewed",
+            f"{review_id}: equation review status mismatch",
+        )
+        check(
+            review["human_verified"] is False,
+            f"{review_id}: equation review must not claim human verification",
+        )
+        check(
+            review["evidence_status"] == "ai_textbook_summary_unverified",
+            f"{review_id}: equation review evidence status mismatch",
+        )
+        check(
+            re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", review["reviewed_at"])
+            is not None,
+            f"{review_id}: invalid equation review date",
+        )
+        check(
+            len(review["concept_ids"]) == len(review["concept_names"]),
+            f"{review_id}: concept ID/name length mismatch",
+        )
+        for concept_id, concept_name in zip(
+            review["concept_ids"], review["concept_names"]
+        ):
+            concept = concept_by_id.get(concept_id)
+            check(
+                concept is not None,
+                f"{review_id}: unknown concept ID {concept_id}",
+            )
+            if concept is not None:
+                check(
+                    concept["canonical_name"] == concept_name,
+                    f"{review_id}: concept name mismatch for {concept_id}",
+                )
+            equation_review_by_concept[concept_id].append(review)
+
+        set_key = review["review_set_key"]
+        check(
+            review["role"] not in equation_set_roles[set_key],
+            f"{review_id}: duplicate equation role in set {set_key}",
+        )
+        equation_set_roles[set_key].add(review["role"])
+        set_metadata = {
+            field: review[field]
+            for field in (
+                "review_set_id",
+                "review_set_key",
+                "review_set_title",
+                "domain",
+                "concept_ids",
+                "concept_names",
+                "medium",
+                "conditions",
+                "set_notes",
+                "ambiguity_notes",
+                "source_occurrence_ids",
+                "source_refs",
+            )
+        }
+        existing_metadata = equation_set_metadata.get(set_key)
+        if existing_metadata is None:
+            equation_set_metadata[set_key] = set_metadata
+        else:
+            check(
+                existing_metadata == set_metadata,
+                f"{review_id}: inconsistent metadata within set {set_key}",
+            )
+
+        method = review["review_method"]
+        equation_method_counts[method] += 1
+        equation_domain_counts[review["domain"]] += 1
+        check(
+            review["checks"]["method"] == method,
+            f"{review_id}: equation check method mismatch",
+        )
+        check(
+            review["checks"]["conditions"] == "metadata_only",
+            f"{review_id}: equation conditions must not claim validation",
+        )
+        check(
+            review["checks"]["state_symbols"] == "not_validated",
+            f"{review_id}: equation state symbols must not claim validation",
+        )
+        machine_expression = review["machine_expression"]
+        if method == "machine_mass_charge_check":
+            check(
+                isinstance(machine_expression, str)
+                and bool(machine_expression.strip()),
+                f"{review_id}: machine check lacks expression",
+            )
+            check(
+                review["checks"]["mass_balance"] == "passed"
+                and review["checks"]["charge_balance"] == "passed",
+                f"{review_id}: machine check status is not passed",
+            )
+            if isinstance(machine_expression, str) and machine_expression.strip():
+                try:
+                    balance = check_balance(machine_expression)
+                except Exception as exc:
+                    errors.append(
+                        f"{review_id}: machine expression parse failed: {exc}"
+                    )
+                else:
+                    check(
+                        balance.mass_balanced,
+                        f"{review_id}: machine expression is not mass balanced",
+                    )
+                    check(
+                        balance.charge_balanced,
+                        f"{review_id}: machine expression is not charge balanced",
+                    )
+        elif method == "structural_review":
+            check(
+                machine_expression is None,
+                f"{review_id}: structural review must not carry machine expression",
+            )
+            check(
+                review["checks"]["mass_balance"] == "not_applicable"
+                and review["checks"]["charge_balance"] == "not_applicable",
+                f"{review_id}: structural review check status mismatch",
+            )
+        else:
+            errors.append(f"{review_id}: invalid equation review method")
+
+        for occurrence_id in review["source_occurrence_ids"]:
+            occurrence = occurrence_by_id.get(occurrence_id)
+            check(
+                occurrence is not None,
+                f"{review_id}: unknown source occurrence {occurrence_id}",
+            )
+            if occurrence is not None:
+                check(
+                    occurrence["concept_id"] in review["concept_ids"],
+                    f"{review_id}: source occurrence belongs to another concept",
+                )
+            equation_occurrence_coverage.add(occurrence_id)
+
+        expected_occurrences = {
+            occurrence_id
+            for occurrence_id, occurrence in occurrence_by_id.items()
+            if occurrence["concept_id"] in review["concept_ids"]
+        }
+        check(
+            set(review["source_occurrence_ids"]) == expected_occurrences,
+            f"{review_id}: source occurrence coverage mismatch",
+        )
+        expected_ref_keys = {
+            json.dumps(
+                {
+                    "book_id": ref["book_id"],
+                    "book_title": ref["book_title"],
+                    "chapter": ref["chapter"],
+                    "section": ref["section"],
+                    "pages": ref["pages"],
+                    "source_kind": ref["source_kind"],
+                    "verification_status": "unverified_ai_summary_pages_only",
+                },
+                ensure_ascii=False,
+                sort_keys=True,
+            )
+            for occurrence_id in expected_occurrences
+            for ref in occurrence_by_id[occurrence_id].get("textbook_refs", [])
+        }
+        actual_ref_keys = {
+            json.dumps(ref, ensure_ascii=False, sort_keys=True)
+            for ref in review["source_refs"]
+        }
+        check(
+            actual_ref_keys == expected_ref_keys,
+            f"{review_id}: source reference coverage mismatch",
+        )
+
+        check(
+            bool(review["source_refs"]),
+            f"{review_id}: equation review lacks source refs",
+        )
+        for ref in review["source_refs"]:
+            check(
+                ref["verification_status"]
+                == "unverified_ai_summary_pages_only",
+                f"{review_id}: source ref claims verification",
+            )
+        source_verification = review["source_verification"]
+        check(
+            source_verification["status"]
+            == "unverified_ai_summary_pages_only",
+            f"{review_id}: source verification status mismatch",
+        )
+        for field in ("publisher", "edition", "isbn", "quote", "quote_locator"):
+            check(
+                source_verification[field] is None,
+                f"{review_id}: source verification field {field} must be null",
+            )
+        check(
+            source_verification["page_ranges_inherited_from_source"] is True,
+            f"{review_id}: source page provenance flag mismatch",
+        )
+
+    check(
+        equation_review_manifest["review_sets"] == len(equation_set_metadata),
+        "equation review manifest set count mismatch",
+    )
+    check(
+        len(
+            {
+                metadata["review_set_id"]
+                for metadata in equation_set_metadata.values()
+            }
+        )
+        == len(equation_set_metadata),
+        "equation review set IDs are not unique",
+    )
+    check(
+        equation_review_manifest["equations"] == len(equation_reviews),
+        "equation review manifest equation count mismatch",
+    )
+    check(
+        equation_review_manifest["review_methods"]
+        == dict(sorted(equation_method_counts.items())),
+        "equation review manifest method counts mismatch",
+    )
+    check(
+        equation_review_manifest["domains"]
+        == dict(sorted(equation_domain_counts.items())),
+        "equation review manifest domain counts mismatch",
+    )
+    check(
+        equation_review_manifest["canonical_concepts_covered"]
+        == len(equation_review_by_concept),
+        "equation review manifest concept coverage mismatch",
+    )
+    check(
+        equation_review_manifest["source_occurrences_covered"]
+        == len(equation_occurrence_coverage),
+        "equation review manifest source coverage mismatch",
+    )
+    check(
+        equation_review_manifest["human_verified"] is False,
+        "equation review manifest must not claim human verification",
+    )
+    check(
+        equation_review_manifest["review_status"] == "machine_reviewed",
+        "equation review manifest status mismatch",
+    )
+    check(
+        equation_review_manifest["evidence_status"]
+        == "ai_textbook_summary_unverified",
+        "equation review manifest evidence status mismatch",
+    )
+
+    for concept in concepts:
+        reviews = equation_review_by_concept.get(concept["concept_id"], [])
+        quality = concept["quality"]
+        if not reviews:
+            check(
+                quality["equation_review_ids"] == [],
+                f"{concept['concept_id']}: unreviewed concept has equation review IDs",
+            )
+            check(
+                quality["equation_validation_status"] == "not_reviewed",
+                f"{concept['concept_id']}: unreviewed concept has validation status",
+            )
+            continue
+        ordered = sorted(
+            reviews,
+            key=lambda record: (
+                record["review_set_key"],
+                record["equation_index"],
+            ),
+        )
+        expected_ids = list(dict.fromkeys(
+            record["review_id"] for record in ordered
+        ))
+        check(
+            quality["equation_review_ids"] == expected_ids,
+            f"{concept['concept_id']}: equation review IDs mismatch",
+        )
+        expected_displays = list(dict.fromkeys(
+            record["display"] for record in ordered
+        ))
+        check(
+            concept["representations"]["equations"] == expected_displays,
+            f"{concept['concept_id']}: reviewed equations do not match representations",
+        )
+        methods = {record["review_method"] for record in ordered}
+        if methods == {"machine_mass_charge_check"}:
+            expected_status = "machine_mass_charge_checked"
+        elif methods == {"structural_review"}:
+            expected_status = "structural_reviewed"
+        else:
+            expected_status = "machine_and_structural_reviewed"
+        check(
+            quality["equation_validation_status"] == expected_status,
+            f"{concept['concept_id']}: equation validation status mismatch",
+        )
+        issue_codes = {
+            detail["code"] for detail in quality["issue_details"]
+        }
+        check(
+            "equation_extraction_unverified" not in issue_codes,
+            f"{concept['concept_id']}: reviewed concept retains extraction warning",
+        )
+        check(
+            "equation_textbook_evidence_unverified" in issue_codes,
+            f"{concept['concept_id']}: reviewed concept hides textbook evidence gap",
+        )
+
     occurrence_ids_by_concept: dict[str, list[str]] = defaultdict(list)
     for row in occurrences:
         occurrence_ids_by_concept[row["concept_id"]].append(row["occurrence_id"])
@@ -280,6 +652,142 @@ def main() -> int:
             ),
             f"occurrence {row['occurrence_id']} source fingerprint mismatch",
         )
+
+    locator_ids: set[str] = set()
+    locator_occurrences: set[str] = set()
+    locator_counts_by_book: Counter[str] = Counter()
+    for locator in textbook_locators:
+        locator_id = locator["locator_id"]
+        check(
+            locator_id not in locator_ids,
+            f"duplicate textbook locator ID: {locator_id}",
+        )
+        locator_ids.add(locator_id)
+        check(
+            locator["schema_version"] == "chem-textbook-locator-v1",
+            f"{locator_id}: textbook locator schema version mismatch",
+        )
+        occurrence_id = locator["occurrence_id"]
+        locator_occurrences.add(occurrence_id)
+        occurrence = occurrence_by_id.get(occurrence_id)
+        check(
+            occurrence is not None,
+            f"{locator_id}: unknown occurrence {occurrence_id}",
+        )
+        if occurrence is None:
+            continue
+        check(
+            locator["concept_id"] == occurrence["concept_id"],
+            f"{locator_id}: concept mapping mismatch",
+        )
+        check(
+            locator["book_id"] == occurrence["book_id"],
+            f"{locator_id}: book ID mismatch",
+        )
+        ref_index = locator["source_ref_index"]
+        refs = occurrence.get("textbook_refs", [])
+        check(
+            1 <= ref_index <= len(refs),
+            f"{locator_id}: source ref index out of range",
+        )
+        if 1 <= ref_index <= len(refs):
+            ref = refs[ref_index - 1]
+            check(
+                locator["pages"] == sorted(locator["pages"]),
+                f"{locator_id}: textbook page range is not ascending",
+            )
+            for field in (
+                "book_id",
+                "book_title",
+                "chapter",
+                "section",
+                "pages",
+                "source_kind",
+            ):
+                check(
+                    locator[field] == ref[field],
+                    f"{locator_id}: source ref field mismatch: {field}",
+                )
+        check(
+            locator["publisher"] is None
+            and locator["edition"] is None
+            and locator["isbn"] is None
+            and locator["quote"] is None
+            and locator["quote_locator"] is None,
+            f"{locator_id}: textbook metadata must remain null",
+        )
+        check(
+            locator["page_ranges_inherited_from_ai_summary"] is True,
+            f"{locator_id}: textbook page provenance flag mismatch",
+        )
+        check(
+            locator["verification_status"]
+            == "unverified_ai_summary_pages_only",
+            f"{locator_id}: textbook locator verification status mismatch",
+        )
+        check(
+            locator["review_status"] == "unverified",
+            f"{locator_id}: textbook locator review status mismatch",
+        )
+        check(
+            locator["human_verified"] is False,
+            f"{locator_id}: textbook locator must not claim human verification",
+        )
+        check(
+            locator["verified_at"] is None and locator["verified_by"] is None,
+            f"{locator_id}: textbook locator must not claim verification actors",
+        )
+        check(
+            locator["evidence_status"] == "ai_textbook_summary_unverified",
+            f"{locator_id}: textbook locator evidence status mismatch",
+        )
+        locator_counts_by_book[locator["book_id"]] += 1
+
+    check(
+        locator_occurrences == source_ids,
+        "textbook locator rows do not cover every source occurrence",
+    )
+    expected_locator_books = {
+        row["book_id"]: row["textbook_refs"]
+        for row in textbook_locator_manifest["books"]
+    }
+    for row in textbook_locator_manifest["books"]:
+        check(
+            row["publisher"] is None
+            and row["edition"] is None
+            and row["isbn"] is None,
+            f"{row['book_id']}: textbook manifest claims unverified metadata",
+        )
+        check(
+            row["verification_status"]
+            == "unverified_ai_summary_pages_only",
+            f"{row['book_id']}: textbook manifest verification status mismatch",
+        )
+    check(
+        dict(locator_counts_by_book) == expected_locator_books,
+        "textbook locator manifest book counts mismatch",
+    )
+    check(
+        textbook_locator_manifest["verified_metadata"]
+        == {
+            "publisher": 0,
+            "edition": 0,
+            "isbn": 0,
+            "quote": 0,
+            "quote_locator": 0,
+        },
+        "textbook locator manifest claims verified metadata",
+    )
+    check(
+        textbook_locator_manifest["human_verified"] is False,
+        "textbook locator manifest must not claim human verification",
+    )
+    check(
+        textbook_locator_manifest["verification_status"]
+        == "unverified_ai_summary_pages_only",
+        "textbook locator manifest verification status mismatch",
+    )
+
     for concept in concepts:
         source_ids_for_concept = concept["provenance"]["occurrence_ids"]
         check(
@@ -448,6 +956,49 @@ def main() -> int:
             "required": ("胶原蛋白的含氮量通常高于 16%",),
             "forbidden": ("胶原蛋白较低",),
         },
+        "燃料电池的特点与优势": {
+            "required": ("理论效率不受卡诺循环限制", "统一的“>80%”", "含碳燃料"),
+            "forbidden": ("能量转化效率极高（通常>80%）", "实现了低污染或零排放"),
+        },
+        "电解池的工作原理与离子迁移": {
+            "required": ("电子不穿过溶液",),
+            "forbidden": ("经电解质溶液离子导电后",),
+        },
+        "钢铁的析氢腐蚀": {
+            "required": ("不能把O2写成该过程的必要反应物",),
+            "forbidden": ("反应速率通常较快", "对金属结构的破坏性更直接"),
+        },
+        "电解池电极反应式的书写": {
+            "required": ("绝对放电顺序",),
+            "forbidden": ("Ag⁺ > Fe³⁺ > Cu²⁺ > H⁺ > ...）", "阴极：Ag⁺ > Fe³⁺"),
+        },
+        "纤维素的水解反应": {
+            "required": ("较强酸", "n−1"),
+            "forbidden": ("稀硫酸或酶催化下", "浓硫酸的催化作用"),
+        },
+        "原电池原理与构成": {
+            "required": ("PbO2", "盐桥或隔膜不是所有原电池的必要条件"),
+            "forbidden": (
+                "正极材料可能参与反应（如镁铝氢氧化钠原电池）",
+                "两个活泼性不同的电极",
+            ),
+        },
+        "乙醇与钠的反应": {
+            "required": ("断键位置是O–H键", "不是卤代烃式的亲核取代"),
+            "forbidden": ("反应本质是置换反应（或广义取代）",),
+        },
+        "缩聚反应中的小分子副产物": {
+            "required": ("n−1", "2n−1", "并非所有逐步聚合"),
+            "forbidden": ("判断是否为缩聚反应的关键依据是",),
+        },
+        "高分子结构简式的书写规范": {
+            "required": ("端基不能套用统一模板", "引发剂残留"),
+            "forbidden": ("通常保留引发剂或反应残留的官能团",),
+        },
+        "缩聚物结构简式书写规范": {
+            "required": ("不是固定模板", "不是“引发剂残留”的同义词"),
+            "forbidden": ("缩聚物的端基是确定的",),
+        },
     }
     for concept_name, expectations in regression_expectations.items():
         concept = concept_by_name.get(concept_name)
@@ -477,6 +1028,17 @@ def main() -> int:
                 forbidden not in text,
                 f"{concept_name}: stale correction remains: {forbidden}",
             )
+
+    hydrogen_corrosion = concept_by_name.get("钢铁的析氢腐蚀")
+    check(
+        hydrogen_corrosion is not None,
+        "regression concept missing: 钢铁的析氢腐蚀",
+    )
+    if hydrogen_corrosion is not None:
+        check(
+            "O2" not in hydrogen_corrosion["representations"]["formulas"],
+            "钢铁的析氢腐蚀: O2 must not remain in required formulas",
+        )
 
     # Confusable pairs are explicit, symmetric contrast records. They are
     # separate from prerequisite/related edges because their teaching use is
@@ -794,6 +1356,8 @@ def main() -> int:
     # Structural validation against the published JSON Schema.
     schema = load_json_config(SCHEMA_PATH)
     confusable_schema = load_json_config(CONFUSABLE_SCHEMA_PATH)
+    equation_schema = load_json_config(EQUATION_SCHEMA_PATH)
+    locator_schema = load_json_config(LOCATOR_SCHEMA_PATH)
     try:
         import jsonschema
     except Exception:
@@ -814,6 +1378,24 @@ def main() -> int:
                     f"confusable schema {pair.get('pair_id', '<unknown>')}: "
                     f"{error.json_path}: {error.message}"
                 )
+        equation_validator = jsonschema.Draft202012Validator(equation_schema)
+        for review in equation_reviews:
+            for error in sorted(
+                equation_validator.iter_errors(review), key=str
+            ):
+                errors.append(
+                    f"equation schema {review.get('review_id', '<unknown>')}: "
+                    f"{error.json_path}: {error.message}"
+                )
+        locator_validator = jsonschema.Draft202012Validator(locator_schema)
+        for locator in textbook_locators:
+            for error in sorted(
+                locator_validator.iter_errors(locator), key=str
+            ):
+                errors.append(
+                    f"locator schema {locator.get('locator_id', '<unknown>')}: "
+                    f"{error.json_path}: {error.message}"
+                )
 
     # Keep machine extraction visible instead of presenting it as verified
     # chemistry. No formula/equation is certified by this validator.
@@ -822,12 +1404,18 @@ def main() -> int:
         "formula validation status must not claim verification",
     )
     check(
-        model_manifest["quality"]["equation_validation"] == "not_performed",
-        "equation validation status must not claim verification",
+        model_manifest["quality"]["equation_validation"]
+        == "partial_machine_mass_charge_and_structural_review",
+        "equation validation status must remain partial and qualified",
     )
     check(
         model_manifest["human_verified"] is False,
         "canonical model must not claim human verification",
+    )
+    check(
+        model_manifest["equation_review"]["textbook_evidence_status"]
+        == "unverified_ai_summary_pages_only",
+        "equation review must preserve unverified textbook evidence status",
     )
 
     summary = {
@@ -835,6 +1423,8 @@ def main() -> int:
         "occurrences": len(occurrences),
         "relations": dict(relation_counts),
         "review_queue": len(review_queue),
+        "equation_reviews": len(equation_reviews),
+        "textbook_locators": len(textbook_locators),
         "errors": len(errors),
         "warnings": len(warnings),
     }

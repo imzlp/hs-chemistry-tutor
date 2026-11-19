@@ -214,7 +214,9 @@
         "corrections",
         "open_issues",
         "issue_details",
-        "evidence_status"
+        "evidence_status",
+        "equation_review_ids",
+        "equation_validation_status"
       ],
       "properties": {
         "review_status": {
@@ -241,6 +243,19 @@
         },
         "evidence_status": {
           "const": "ai_textbook_summary_unverified"
+        },
+        "equation_review_ids": {
+          "type": "array",
+          "items": {"type": "string", "pattern": "^eqr_[0-9a-f]{12}$"},
+          "uniqueItems": true
+        },
+        "equation_validation_status": {
+          "enum": [
+            "not_reviewed",
+            "machine_mass_charge_checked",
+            "structural_reviewed",
+            "machine_and_structural_reviewed"
+          ]
         }
       }
     }

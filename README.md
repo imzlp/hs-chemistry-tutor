@@ -20,16 +20,30 @@ data/
     review-queue.jsonl      仍需复核的规范概念
     relation-gaps.jsonl     未解析/外部/歧义关系聚合
     manifest.json           模型统计与质量状态
+  review/
+    equation-review.jsonl           电化学与有机方程逐条审核
+    textbook-locator.jsonl          教材逐条待核验定位台账
+    manifest.json                   方程审核统计
+    textbook-locator-manifest.json  教材版本与 ISBN 阻塞状态
   schema/
     chem-concept-v1.schema.json
     chem-confusable-pair-v1.schema.json
+    chem-equation-review-v1.schema.json
+    chem-textbook-locator-v1.schema.json
 docs/
   canonical-model.md
   content-quality-audit.md
+  equation-review.md
+  textbook-verification.md
 scripts/
   build_canonical_model.py
+  build_equation_review.py
+  build_textbook_locator.py
   validate_canonical_model.py
   apply_content_overrides.py
+  equation_balance.py
+  equation_review_catalog.json
+  equation_content_overrides.json
   canonical_confusable_pairs.json
 ```
 
@@ -39,12 +53,16 @@ scripts/
 - `data/canonical` 是面向教学系统的规范概念层，使用 `concept_id`；
 - 一个规范概念可以对应多条教材出现记录，不能把 `kp_id` 当作唯一概念 ID；
 - `data/canonical/review-queue.jsonl` 明确列出仍需人工复核的概念；
+- `data/review/equation-review.jsonl` 区分机器原子/电荷校验与结构审查；
+- `data/review/textbook-locator.jsonl` 逐条保留页码，但不伪造版本、ISBN 或原文；
 - `human_verified=false`、`evidence_status=ai_textbook_summary_unverified`
   表示当前只是机器辅助审校，不是专家审定。
 
 模型字段、关系状态和教学使用边界见
 [`docs/canonical-model.md`](docs/canonical-model.md)，数据质量基线见
-[`docs/content-quality-audit.md`](docs/content-quality-audit.md)。
+[`docs/content-quality-audit.md`](docs/content-quality-audit.md)。方程复核边界见
+[`docs/equation-review.md`](docs/equation-review.md)，教材定位状态见
+[`docs/textbook-verification.md`](docs/textbook-verification.md)。
 
 ## 更新与校验
 
@@ -57,6 +75,9 @@ python3 scripts/apply_content_overrides.py \
   --overrides scripts/p1_content_overrides.json --write
 python3 scripts/apply_content_overrides.py \
   --overrides scripts/p2_content_overrides.json --write
+python3 scripts/build_canonical_model.py
+python3 scripts/build_equation_review.py
+python3 scripts/build_textbook_locator.py
 python3 scripts/build_canonical_model.py
 python3 scripts/validate_canonical_model.py --strict-schema
 ```
@@ -77,5 +98,7 @@ python3 -m http.server 8000
 ## 使用边界
 
 当前数据适合做检索、课程编排、错题诊断和教学文案生成的候选底座，不应直接
-作为自动答疑的唯一事实来源。方程式配平、电荷守恒、状态符号、教材原文定位
-和实验安全仍需高中化学教师逐项复核后才能用于正式教学。
+作为自动答疑的唯一事实来源。107 条方程已完成机器原子/电荷校验或结构审查，
+但状态符号、反应条件、机理和教材原文仍未认证；573 条教材定位记录的出版社、
+版次、ISBN 和原文均为空。上述内容仍需高中化学教师逐项复核后才能用于正式
+教学。

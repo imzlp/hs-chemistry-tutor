@@ -17,7 +17,9 @@ DATA_DIR = ROOT / "data"
 CANONICAL_DIR = DATA_DIR / "canonical"
 GROUPS_PATH = ROOT / "scripts" / "canonical_concept_groups.json"
 CONTENT_OVERRIDES_PATH = ROOT / "scripts" / "canonical_content_overrides.json"
+EQUATION_OVERRIDES_PATH = ROOT / "scripts" / "equation_content_overrides.json"
 CONFUSABLE_PAIRS_PATH = ROOT / "scripts" / "canonical_confusable_pairs.json"
+EQUATION_REVIEW_PATH = DATA_DIR / "review" / "equation-review.jsonl"
 P0_PATH = ROOT / "scripts" / "p0_content_overrides.json"
 P1_PATH = ROOT / "scripts" / "p1_content_overrides.json"
 P2_PATH = ROOT / "scripts" / "p2_content_overrides.json"
@@ -749,6 +751,15 @@ def apply_content_override(concept: dict[str, Any], override: dict[str, Any]) ->
             for item in override["core_ideas"]
             if str(item).strip()
         )
+    representations_override = override.get("representations")
+    if representations_override is not None:
+        for field in ("formulas", "equations", "notations"):
+            if field in representations_override:
+                concept["representations"][field] = unique(
+                    str(item).strip()
+                    for item in representations_override[field]
+                    if str(item).strip()
+                )
     if override.get("teaching_sequence") is not None:
         concept["teaching"]["teaching_sequence"] = unique(
             clean_text(item)
@@ -793,6 +804,69 @@ def apply_content_override(concept: dict[str, Any], override: dict[str, Any]) ->
             f"C1 canonical content correction: {override['correction']}"
         )
         concept["provenance"]["definition_origin"] = "canonical_content_override"
+
+
+def merge_override(base: dict[str, Any], overlay: dict[str, Any]) -> dict[str, Any]:
+    """Merge a focused override into an existing concept override."""
+    merged = dict(base)
+    for key, value in overlay.items():
+        if isinstance(value, dict) and isinstance(merged.get(key), dict):
+            merged[key] = merge_override(merged[key], value)
+        else:
+            merged[key] = value
+    return merged
+
+
+def apply_equation_review(
+    concept: dict[str, Any],
+    review_records: list[dict[str, Any]],
+) -> None:
+    """Attach reviewed equations without upgrading textbook evidence."""
+    if not review_records:
+        return
+    ordered = sorted(
+        review_records,
+        key=lambda record: (
+            record["review_set_key"],
+            record["equation_index"],
+        ),
+    )
+    concept["representations"]["equations"] = unique(
+        record["display"] for record in ordered
+    )
+    concept["quality"]["equation_review_ids"] = unique(
+        record["review_id"] for record in ordered
+    )
+    methods = {record["review_method"] for record in ordered}
+    if methods == {"machine_mass_charge_check"}:
+        validation_status = "machine_mass_charge_checked"
+    elif methods == {"structural_review"}:
+        validation_status = "structural_reviewed"
+    else:
+        validation_status = "machine_and_structural_reviewed"
+    concept["quality"]["equation_validation_status"] = validation_status
+
+    concept["quality"]["issue_details"] = [
+        detail
+        for detail in concept["quality"]["issue_details"]
+        if detail.get("code") != "equation_extraction_unverified"
+    ]
+    concept["quality"]["open_issues"] = [
+        issue
+        for issue in concept["quality"]["open_issues"]
+        if not issue.startswith("equations are prose-extracted")
+    ]
+    issue = "reviewed equations still lack verified textbook quotation and edition/ISBN"
+    concept["quality"]["open_issues"] = unique(
+        concept["quality"]["open_issues"] + [issue]
+    )
+    concept["quality"]["issue_details"].append(
+        {
+            "code": "equation_textbook_evidence_unverified",
+            "severity": "review",
+            "message": issue,
+        }
+    )
 
 
 def infer_concept_type(name: str, statement: str) -> str:
@@ -940,9 +1014,20 @@ def main() -> None:
     external_priors = load_json_config(EXTERNAL_PRIOR_PATH)["labels"]
     group_payload = load_json_config(GROUPS_PATH)
     content_override_payload = load_json_config(CONTENT_OVERRIDES_PATH)
-    content_overrides = content_override_payload.get("overrides", {})
+    content_overrides = dict(content_override_payload.get("overrides", {}))
+    equation_override_payload = load_json_config(EQUATION_OVERRIDES_PATH)
+    for override_name, override in equation_override_payload["overrides"].items():
+        content_overrides[override_name] = merge_override(
+            content_overrides.get(override_name, {}),
+            override,
+        )
     confusable_payload = load_json_config(CONFUSABLE_PAIRS_PATH)
     groups = build_groups(explicit_by_book, group_payload, occurrence_order)
+    equation_review_records = (
+        read_jsonl(EQUATION_REVIEW_PATH)
+        if EQUATION_REVIEW_PATH.exists()
+        else []
+    )
 
     canonical_names_seen: set[str] = set()
     concept_groups: list[dict[str, Any]] = []
@@ -960,6 +1045,17 @@ def main() -> None:
     concept_ids = [group["concept_id"] for group in concept_groups]
     if len(concept_ids) != len(set(concept_ids)):
         raise ValueError("Duplicate concept_id generated")
+    concept_id_set = set(concept_ids)
+    equation_reviews_by_concept: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for review in equation_review_records:
+        unknown_ids = set(review["concept_ids"]) - concept_id_set
+        if unknown_ids:
+            raise ValueError(
+                f"{review['review_id']}: equation review references unknown concepts: "
+                f"{sorted(unknown_ids)}"
+            )
+        for reviewed_concept_id in review["concept_ids"]:
+            equation_reviews_by_concept[reviewed_concept_id].append(review)
 
     raw_relations: list[dict[str, Any]] = []
     concepts: list[dict[str, Any]] = []
@@ -1280,11 +1376,17 @@ def main() -> None:
                 "open_issues": unique(issues),
                 "issue_details": issue_details,
                 "evidence_status": "ai_textbook_summary_unverified",
+                "equation_review_ids": [],
+                "equation_validation_status": "not_reviewed",
             },
         }
         content_override = content_overrides.get(concept["canonical_name"])
         if content_override:
             apply_content_override(concept, content_override)
+        apply_equation_review(
+            concept,
+            equation_reviews_by_concept.get(concept["concept_id"], []),
+        )
         concepts.append(concept)
 
     unknown_override_names = sorted(set(content_overrides) - canonical_names_seen)
@@ -1756,6 +1858,17 @@ def main() -> None:
             for detail in concept["quality"]["issue_details"]
         )
     )
+    equation_method_counts = Counter(
+        record["review_method"] for record in equation_review_records
+    )
+    equation_review_sets = {
+        record["review_set_key"] for record in equation_review_records
+    }
+    equation_concepts = {
+        concept_id
+        for record in equation_review_records
+        for concept_id in record["concept_ids"]
+    }
 
     manifest_out = {
         "schema_version": "chem-model-v1",
@@ -1776,7 +1889,7 @@ def main() -> None:
         "manual_merge_groups": len(group_payload["groups"]),
         "auto_merged_groups": len(groups) - len(group_payload["groups"]),
         "review_status": "machine_reviewed",
-        "review_method": "rule_assisted_machine_review_v2",
+        "review_method": "rule_assisted_machine_review_v3",
         "evidence_status": "ai_textbook_summary_unverified",
         "human_verified": False,
         "corrections": {
@@ -1784,6 +1897,16 @@ def main() -> None:
             "p1": len(p1_ids),
             "p2": len(p2_ids),
             "canonical_content_overrides": len(content_overrides),
+        },
+        "equation_review": {
+            "review_sets": len(equation_review_sets),
+            "equations": len(equation_review_records),
+            "machine_mass_charge_checked": equation_method_counts[
+                "machine_mass_charge_check"
+            ],
+            "structural_reviewed": equation_method_counts["structural_review"],
+            "canonical_concepts_covered": len(equation_concepts),
+            "textbook_evidence_status": "unverified_ai_summary_pages_only",
         },
         "relations": {
             "resolved": sum(1 for row in relation_rows if row["resolution_status"] == "resolved"),
@@ -1803,7 +1926,7 @@ def main() -> None:
         "ambiguous_aliases": len(ambiguous_aliases),
         "ambiguous_alias_labels": sorted(ambiguous_aliases),
         "quality": {
-            "review_method": "rule_assisted_machine_review_v2",
+            "review_method": "rule_assisted_machine_review_v3",
             "concepts_with_open_issues": len(review_queue_rows),
             "blocking_concepts": blocking_concepts,
             "issue_codes": dict(sorted(issue_code_counts.items())),
@@ -1816,7 +1939,11 @@ def main() -> None:
                 )
             ),
             "formula_validation": "not_performed",
-            "equation_validation": "not_performed",
+            "equation_validation": (
+                "partial_machine_mass_charge_and_structural_review"
+                if equation_review_records
+                else "not_performed"
+            ),
             "expert_review_required": True,
         },
     }

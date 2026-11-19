@@ -1,0 +1,33 @@
+{
+  "schema_version": "chem-equation-review-manifest-v1",
+  "generated_at": "2026-11-19",
+  "catalog_version": 2,
+  "review_sets": 46,
+  "equations": 107,
+  "review_methods": {
+    "machine_mass_charge_check": 93,
+    "structural_review": 14
+  },
+  "domains": {
+    "electrochemistry": 57,
+    "organic_chemistry": 50
+  },
+  "canonical_concepts_covered": 65,
+  "source_occurrences_covered": 74,
+  "source_verification": {
+    "status": "unverified_ai_summary_pages_only",
+    "publisher_verified": 0,
+    "edition_verified": 0,
+    "isbn_verified": 0,
+    "quote_verified": 0,
+    "quote_locator_verified": 0
+  },
+  "review_status": "machine_reviewed",
+  "human_verified": false,
+  "evidence_status": "ai_textbook_summary_unverified",
+  "limitations": [
+    "机器校验只覆盖组成式层面的原子守恒与净电荷守恒，不认证反应事实、条件、机理或教材原文。",
+    "结构审查条目不能进行单一分子计量配平，必须连同介质、条件和结构片段说明使用。",
+    "所有页码继承自 AI 教材摘要，未核对出版社、版次、ISBN、版权页或印刷原文。"
+  ]
+}

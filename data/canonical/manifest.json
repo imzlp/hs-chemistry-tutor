@@ -18,14 +18,22 @@
   "manual_merge_groups": 37,
   "auto_merged_groups": 470,
   "review_status": "machine_reviewed",
-  "review_method": "rule_assisted_machine_review_v2",
+  "review_method": "rule_assisted_machine_review_v3",
   "evidence_status": "ai_textbook_summary_unverified",
   "human_verified": false,
   "corrections": {
     "p0": 10,
     "p1": 19,
     "p2": 38,
-    "canonical_content_overrides": 101
+    "canonical_content_overrides": 108
+  },
+  "equation_review": {
+    "review_sets": 46,
+    "equations": 107,
+    "machine_mass_charge_checked": 93,
+    "structural_reviewed": 14,
+    "canonical_concepts_covered": 65,
+    "textbook_evidence_status": "unverified_ai_summary_pages_only"
   },
   "relations": {
     "resolved": 943,
@@ -68,23 +76,24 @@
     "非极性键"
   ],
   "quality": {
-    "review_method": "rule_assisted_machine_review_v2",
+    "review_method": "rule_assisted_machine_review_v3",
     "concepts_with_open_issues": 497,
     "blocking_concepts": 0,
     "issue_codes": {
       "ambiguous_alias_omitted": 42,
       "ambiguous_relation": 1,
       "boundary_extraction_unverified": 343,
-      "equation_extraction_unverified": 24,
+      "equation_extraction_unverified": 20,
+      "equation_textbook_evidence_unverified": 65,
       "external_prior_relation": 178,
       "formula_extraction_unverified": 251,
-      "scope_inferred_from_subtopics": 77,
+      "scope_inferred_from_subtopics": 75,
       "self_referential_relation": 27,
       "unresolved_relation": 928
     },
     "concepts_with_unresolved_relations": 420,
     "formula_validation": "not_performed",
-    "equation_validation": "not_performed",
+    "equation_validation": "partial_machine_mass_charge_and_structural_review",
     "expert_review_required": true
   }
 }

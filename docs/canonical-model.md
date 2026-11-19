@@ -178,10 +178,23 @@ kp_id != concept_id
 - `corrections`：P0/P1/P2 或 C1 修订记录；
 - `open_issues`：仍需处理的问题；
 - `issue_details`：问题代码、严重程度和说明。
+- `equation_review_ids`：该概念引用的 `eqr_...` 方程审核记录；
+- `equation_validation_status`：方程只经机器原子/电荷校验、只经结构审查、
+  两者兼有，或尚未审核。
 
 `machine_reviewed` 不是“专家已经确认”。`confidence` 是来源生成置信度，
 不是化学事实正确率。`resolved` 只表示关系标签成功映射，不表示关系本身一定
 符合教学逻辑。
+
+方程状态不是互斥的“真/假”标签：
+
+- `machine_mass_charge_checked` 只表示组成式的原子与净电荷计量自洽；
+- `structural_reviewed` 表示聚合物或结构片段已做结构审查，不能配平；
+- `machine_and_structural_reviewed` 表示该概念同时包含两类方程；
+- `not_reviewed` 表示尚未进入方程专项审核。
+
+所有已审核方程仍带 `equation_textbook_evidence_unverified`，因为教材版本、
+ISBN、原文和精确引文尚未核验。
 
 ## 6. 当前未完成项
 
@@ -189,9 +202,10 @@ kp_id != concept_id
 - 1 条关系存在多个候选；
 - 28 条来源关系为自引用；
 - 197 条关系被标为外部前置；
-- 77 个概念的 scope 由 subtopics 推断，已进入复核队列；
+- 75 个概念的 scope 由 subtopics 推断，已进入复核队列；
 - 当前没有保留旧版统一占位 scope；
-- 公式和方程式均未完成结构化验证；
+- 公式尚未完成结构化验证；
+- 107 条电化学/有机方程已完成机器或结构审查，但仍未认证条件、机理和教材原文；
 - 教材引用仍缺少版本、ISBN、原文摘录和逐句定位；
 - 所有概念都需要高中化学教师按指定教材版本复核。
 
@@ -199,7 +213,10 @@ kp_id != concept_id
 
 1. 检索时优先使用 `concept_id`，展示时保留 `occurrence_id` 作为出处。
 2. 生成学生答案前检查 `quality.open_issues`，不要把开放问题静默隐藏。
-3. 生成方程式前先走独立的结构化校验器，不要直接复用 `representations` 文本。
+3. 使用方程式时同时读取 `data/review/equation-review.jsonl` 的介质、条件、
+   注意事项和 `quality.equation_validation_status`，不要只取展示字符串。
 4. 讲易混概念时读取 `confusable-pairs.jsonl`，展示比较维度和区别。
 5. 讲解类比时同时展示 `analogy.limitations`。
-6. 任何自动生成的结论都应附带来源 occurrence 和 `human_verified` 状态。
+6. 任何教材引用都先查 `data/review/textbook-locator.jsonl`，不得把 AI 摘要页码
+   显示为已核验教材原文。
+7. 任何自动生成的结论都应附带来源 occurrence 和 `human_verified` 状态。

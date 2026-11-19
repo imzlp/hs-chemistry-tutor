@@ -1,0 +1,73 @@
+{
+  "schema_version": "chem-textbook-locator-manifest-v1",
+  "generated_at": "2026-11-19",
+  "source_occurrences": 562,
+  "locator_rows": 573,
+  "books": [
+    {
+      "book_id": "tb_bx1",
+      "book_title": "高中化学 必修 第一册",
+      "occurrences": 105,
+      "textbook_refs": 109,
+      "publisher": null,
+      "edition": null,
+      "isbn": null,
+      "verification_status": "unverified_ai_summary_pages_only"
+    },
+    {
+      "book_id": "tb_bx2",
+      "book_title": "高中化学 必修 第二册",
+      "occurrences": 116,
+      "textbook_refs": 119,
+      "publisher": null,
+      "edition": null,
+      "isbn": null,
+      "verification_status": "unverified_ai_summary_pages_only"
+    },
+    {
+      "book_id": "tb_xx1",
+      "book_title": "化学反应原理",
+      "occurrences": 102,
+      "textbook_refs": 104,
+      "publisher": null,
+      "edition": null,
+      "isbn": null,
+      "verification_status": "unverified_ai_summary_pages_only"
+    },
+    {
+      "book_id": "tb_xx2",
+      "book_title": "物质结构与性质",
+      "occurrences": 55,
+      "textbook_refs": 55,
+      "publisher": null,
+      "edition": null,
+      "isbn": null,
+      "verification_status": "unverified_ai_summary_pages_only"
+    },
+    {
+      "book_id": "tb_xx3",
+      "book_title": "有机化学基础",
+      "occurrences": 184,
+      "textbook_refs": 186,
+      "publisher": null,
+      "edition": null,
+      "isbn": null,
+      "verification_status": "unverified_ai_summary_pages_only"
+    }
+  ],
+  "verified_metadata": {
+    "publisher": 0,
+    "edition": 0,
+    "isbn": 0,
+    "quote": 0,
+    "quote_locator": 0
+  },
+  "verification_status": "unverified_ai_summary_pages_only",
+  "human_verified": false,
+  "evidence_status": "ai_textbook_summary_unverified",
+  "blocking_inputs": [
+    "仓库中没有五本教材的封面、版权页、版次页或 ISBN 记录。",
+    "现有 pages 是 AI 摘要声明的页码范围，未与印刷页或 PDF 页逐条比对。",
+    "仓库中没有可引用的教材原文，因此 quote 与 quote_locator 必须保持 null。"
+  ]
+}

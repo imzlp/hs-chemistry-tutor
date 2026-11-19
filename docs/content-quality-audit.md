@@ -12,17 +12,19 @@
 已经完成：
 
 - 已修复 10 个 P0 事实错误、19 个 P1 内容问题和 38 个 P2 一致性问题；
-- 已对 101 个规范概念应用概念级内容修订；
+- 基础修订 101 个概念，合并方程专项修订后共覆盖 108 个规范概念；
 - 已把 562 条教材出现记录归并为 507 个规范概念；
 - 已保留 `kp_id` 作为教材出现记录 ID，并生成稳定的 `concept_id`；
 - 已生成 15 组易混概念对照，区分维度写入独立文件；
 - 已生成复核队列和关系缺口清单，未完成的审核不会被隐藏。
+- 已对电化学与有机化学 46 组情境、107 条方程式建立逐条审核记录；
+- 已生成 573 条教材定位记录，逐条标记页码和版本证据尚未核验。
 
 仍然不能宣称：
 
 - 没有教师逐概念签字确认；
-- 没有教材出版社、版次、ISBN 和原文逐句定位；
-- 没有完成方程式配平、电荷守恒和状态符号的机器验证；
+- 没有教材出版社、版次、ISBN 和原文逐句定位；现有页码仍只是 AI 摘要声称；
+- 方程式只完成部分原子/电荷机器复核，未认证反应条件、机理、状态符号和教材原文；
 - 没有把 931 条未解析关系全部变成可靠知识图谱。
 
 因此，所有规范概念当前都是：
@@ -80,8 +82,9 @@ evidence_status = ai_textbook_summary_unverified
 
 ### 规范概念层修订
 
-`scripts/canonical_content_overrides.json` 对 101 个规范概念应用了内容级修订，
-重点是：
+`scripts/canonical_content_overrides.json` 对 101 个规范概念应用了基础内容
+修订；`scripts/equation_content_overrides.json` 再对其中 3 个概念补充方程相关
+边界，并新增 7 个概念修订，合并后共覆盖 108 个概念。重点是：
 
 - 给定义补充适用条件、例外和边界；
 - 把“所有、唯一、一定、完全”等绝对化表述改为可检验的条件句；
@@ -122,17 +125,39 @@ evidence_status = ai_textbook_summary_unverified
   },
   "review_queue": 497,
   "blocking_concepts": 0,
-  "scope_inferred_from_subtopics": 77,
+  "scope_inferred_from_subtopics": 75,
   "scope_generic": 0
+}
+```
+
+方程与教材定位的独立统计：
+
+```json
+{
+  "equation_review": {
+    "review_sets": 46,
+    "equations": 107,
+    "machine_mass_charge_checked": 93,
+    "structural_reviewed": 14,
+    "canonical_concepts_covered": 65
+  },
+  "textbook_locator": {
+    "source_occurrences": 562,
+    "locator_rows": 573,
+    "publisher_verified": 0,
+    "edition_verified": 0,
+    "isbn_verified": 0,
+    "quote_verified": 0
+  }
 }
 ```
 
 `review_queue` 很大并不代表所有概念都“错误”。它同时包含：
 
 - 来源关系标签尚未找到规范概念节点；
-- 公式或方程式由文本抽取，尚未做结构化验证；
+- 仍带 `formula_extraction_unverified` 或 `equation_extraction_unverified` 的条目尚未完成对应结构化验证；
 - 条件、例外和例子由机器抽取，需要教师确认；
-- 77 个概念的 scope 由 subtopics 推断，尚未逐条对照教材原文；
+- 75 个概念的 scope 由 subtopics 推断，尚未逐条对照教材原文；
 - 别名存在歧义，已从公开别名表中移除；
 - 来源关系指向自身，不能作为有效前置边。
 
@@ -151,24 +176,30 @@ evidence_status = ai_textbook_summary_unverified
 
 这些缺口会保留在 `relation-gaps.jsonl`，教学系统不能把缺失边当作“没有关系”。
 
-### 2. 公式和方程式尚未认证
+### 2. 方程式只完成部分机器复核
 
-当前 `formula_validation` 和 `equation_validation` 都是 `not_performed`。
-文本中的化学式、离子方程式、热化学方程式和电极反应可能缺少：
+`formula_validation` 仍为 `not_performed`。`equation_validation` 已升级为：
 
-- 配平系数；
-- 电荷守恒；
-- 气体/沉淀/可逆符号；
-- 反应条件；
-- 单位和有效数字。
+```text
+partial_machine_mass_charge_and_structural_review
+```
 
-教学系统在展示方程式前必须经过独立的结构化校验。
+电化学与有机化学的 107 条方程式已有逐条记录，其中：
+
+- 93 条通过组成式层面的原子守恒和净电荷守恒；
+- 14 条是聚合物或结构片段，只做结构审查，明确标为 `not_applicable`；
+- 65 个规范概念已接入审核后的展示式；
+- 其余 20 个仍带 `equation_extraction_unverified` 的概念没有被隐藏。
+
+机器校验不认证反应事实、条件、机理、状态符号、有效数字或教材原文。尤其是
+电池半反应、有机反应条件和聚合物端基，仍必须按具体体系复核。
 
 ### 3. 证据不可逐句追溯
 
-教材引用仍以 AI 摘要和页码范围为主，缺少出版社、版次、ISBN、原文摘录和
-段落定位。页码跨度较大的引用不能证明具体定义句。正式上线前应补充可核验的
-教材原文证据。
+`data/review/textbook-locator.jsonl` 已把 562 条 occurrence 展开为 573 条
+逐条定位记录，但所有出版社、版次、ISBN、原文和精确引文仍为 `null`。
+现有页码只是 AI 摘要声称，不能证明具体定义句出现在指定页。正式上线前必须
+取得教材实体或正式电子版，并逐条回填版权页与原文。
 
 ### 4. 教学层仍需教师复核
 
@@ -192,7 +223,7 @@ evidence_status = ai_textbook_summary_unverified
 1. 关键概念有人工审核记录，而不是只有 `machine_reviewed`；
 2. 所有内部前置关系可解析，或有明确的 `external_prior` 说明；
 3. 每个高风险概念都有条件、例外、反例和易混对照；
-4. 方程式通过配平、电荷和状态符号校验；
+4. 高风险方程式通过配平、电荷、状态符号、条件和介质校验；
 5. 教材引用可定位到版本、页码和原文；
 6. 学生端解释不包含教师指导语、课堂组织和未限定范围的绝对化结论；
 7. 对“所有、唯一、一定、完全、不可逆”等词建立自动回归检查。
@@ -207,18 +238,23 @@ python3 scripts/apply_content_overrides.py \
 python3 scripts/apply_content_overrides.py \
   --overrides scripts/p2_content_overrides.json --write
 python3 scripts/build_canonical_model.py
+python3 scripts/build_equation_review.py
+python3 scripts/build_textbook_locator.py
+python3 scripts/build_canonical_model.py
 python3 scripts/validate_canonical_model.py
 ```
 
 `validate_canonical_model.py` 会检查来源覆盖、概念 ID、别名唯一性、关系表
-无损映射、复核队列、易混对照对称性、JSON 重复键和 schema。
+无损映射、复核队列、易混对照对称性、方程原子/电荷、方程来源覆盖、教材定位
+字段、JSON 重复键和 schema。
 
 ## 八、总结
 
 这批数据已经从“分散的教材摘要”推进到“可追溯 occurrence + 规范 concept +
-显式关系 + 易混对照 + 复核队列”的结构，适合作为高中化学辅助教学系统的
-候选数据底座。
+显式关系 + 易混对照 + 复核队列 + 分层方程审核 + 逐条教材定位台账”的结构，
+适合作为高中化学辅助教学系统的候选数据底座。
 
 但它的正确性边界必须被系统显式继承：`machine_reviewed` 不是专家认证，
-`resolved` 不是事实正确，`confidence` 也不是无歧义保证。正式教学上线前，
-仍应由高中化学教师按教材版本完成逐概念复核。
+`resolved` 不是事实正确，方程机器配平不是反应事实认证，页码存在也不等于
+教材原文已核验，`confidence` 更不是无歧义保证。正式教学上线前，仍应由高中
+化学教师按明确教材版本完成逐概念、逐方程和逐引文复核。

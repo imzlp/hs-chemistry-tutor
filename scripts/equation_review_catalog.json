@@ -1,0 +1,1404 @@
+{
+  "version": 2,
+  "reviewed_at": "2026-11-19",
+  "description": "电化学与有机反应方程式的结构化复核目录。display 是面向教学展示的规范写法；balance 仅用于质量门禁的原子与电荷验算。所有记录仍未对照教材版权页、ISBN 与印刷原文。",
+  "sets": [
+    {
+      "set_id": "ec_zn_cu_dilute_sulfuric_acid",
+      "domain": "electrochemistry",
+      "concept_ids": ["chem_2bf21e94d03b"],
+      "title": "锌铜稀硫酸原电池",
+      "medium": "aqueous_acidic",
+      "conditions": ["锌作负极，铜作正极", "稀硫酸为电解质", "闭合回路"],
+      "notes": [
+        "该装置的正极反应物是溶液中的 H⁺，不是 Cu²⁺。",
+        "不能把该体系与含 Cu²⁺/CuSO₄ 的丹尼尔电池混写。"
+      ],
+      "ambiguity_notes": [],
+      "equations": [
+        {
+          "role": "anode_half_reaction",
+          "display": "Zn(s) → Zn²⁺(aq) + 2e⁻",
+          "balance": "Zn(s) -> Zn^2+(aq) + 2e^-",
+          "note": "锌发生氧化反应。"
+        },
+        {
+          "role": "cathode_half_reaction",
+          "display": "2H⁺(aq) + 2e⁻ → H₂(g)",
+          "balance": "2H^+(aq) + 2e^- -> H2(g)",
+          "note": "铜片提供导电表面，H⁺在正极得电子。"
+        },
+        {
+          "role": "overall_reaction",
+          "display": "Zn(s) + 2H⁺(aq) → Zn²⁺(aq) + H₂(g)",
+          "balance": "Zn(s) + 2H^+(aq) -> Zn^2+(aq) + H2(g)",
+          "note": "总离子方程式与电池总反应一致。"
+        }
+      ]
+    },
+    {
+      "set_id": "ec_zn_cu_salt_bridge",
+      "domain": "electrochemistry",
+      "concept_ids": ["chem_e16ddb502a51", "chem_b603d76e88b6"],
+      "title": "含盐桥的锌铜原电池",
+      "medium": "aqueous",
+      "conditions": ["锌作负极，铜作正极", "ZnSO₄与CuSO₄溶液分区", "盐桥形成离子通路"],
+      "notes": [
+        "正极反应物是 Cu²⁺，不是 H⁺。",
+        "盐桥用于维持两侧溶液电中性，盐桥本身不是电子通道。"
+      ],
+      "ambiguity_notes": [
+        "部分题目省略盐桥或改用隔膜，只要离子通路和闭合回路成立，电极反应不变。"
+      ],
+      "equations": [
+        {
+          "role": "anode_half_reaction",
+          "display": "Zn(s) → Zn²⁺(aq) + 2e⁻",
+          "balance": "Zn(s) -> Zn^2+(aq) + 2e^-",
+          "note": "锌发生氧化反应。"
+        },
+        {
+          "role": "cathode_half_reaction",
+          "display": "Cu²⁺(aq) + 2e⁻ → Cu(s)",
+          "balance": "Cu^2+(aq) + 2e^- -> Cu(s)",
+          "note": "铜离子在正极得电子析出铜。"
+        },
+        {
+          "role": "overall_reaction",
+          "display": "Zn(s) + Cu²⁺(aq) → Zn²⁺(aq) + Cu(s)",
+          "balance": "Zn(s) + Cu^2+(aq) -> Zn^2+(aq) + Cu(s)",
+          "note": "总反应为自发的置换型氧化还原反应。"
+        }
+      ]
+    },
+    {
+      "set_id": "ec_hydrogen_oxygen_fuel_cell_acidic",
+      "domain": "electrochemistry",
+      "concept_ids": ["chem_a28c0f433d61"],
+      "title": "酸性氢氧燃料电池",
+      "medium": "aqueous_acidic",
+      "conditions": ["酸性电解质", "氢气在负极氧化", "氧气在正极还原", "多孔电极与催化剂促进反应"],
+      "notes": [
+        "酸性介质中可存在 H⁺，不能出现 OH⁻作为电极反应物种。",
+        "电池总反应不随电解质介质改变，但两组半反应会随介质重写。"
+      ],
+      "ambiguity_notes": [
+        "酸性、碱性和固体电解质燃料电池的电极反应式不能互相套用。"
+      ],
+      "equations": [
+        {
+          "role": "anode_half_reaction",
+          "display": "H₂(g) → 2H⁺(aq) + 2e⁻",
+          "balance": "H2(g) -> 2H^+(aq) + 2e^-",
+          "note": "负极氧化半反应。"
+        },
+        {
+          "role": "cathode_half_reaction",
+          "display": "O₂(g) + 4H⁺(aq) + 4e⁻ → 2H₂O(l)",
+          "balance": "O2(g) + 4H^+(aq) + 4e^- -> 2H2O(l)",
+          "note": "正极还原半反应。"
+        },
+        {
+          "role": "overall_reaction",
+          "display": "2H₂(g) + O₂(g) → 2H₂O(l)",
+          "balance": "2H2(g) + O2(g) -> 2H2O(l)",
+          "note": "总反应与氢气的燃烧反应相同，但能量释放方式不同。"
+        }
+      ]
+    },
+    {
+      "set_id": "ec_hydrogen_oxygen_fuel_cell_alkaline",
+      "domain": "electrochemistry",
+      "concept_ids": ["chem_a28c0f433d61"],
+      "title": "碱性氢氧燃料电池",
+      "medium": "aqueous_alkaline",
+      "conditions": ["碱性电解质", "氢气在负极氧化", "氧气在正极还原"],
+      "notes": [
+        "碱性介质中可存在 OH⁻，电极半反应不应出现自由 H⁺。",
+        "总反应仍为氢气和氧气生成水。"
+      ],
+      "ambiguity_notes": [
+        "若题目只写总反应，不能据此反推唯一的一组电极反应式；必须指定介质。"
+      ],
+      "equations": [
+        {
+          "role": "anode_half_reaction",
+          "display": "H₂(g) + 2OH⁻(aq) → 2H₂O(l) + 2e⁻",
+          "balance": "H2(g) + 2OH^-(aq) -> 2H2O(l) + 2e^-",
+          "note": "负极氧化半反应，OH⁻参与配平。"
+        },
+        {
+          "role": "cathode_half_reaction",
+          "display": "O₂(g) + 2H₂O(l) + 4e⁻ → 4OH⁻(aq)",
+          "balance": "O2(g) + 2H2O(l) + 4e^- -> 4OH^-(aq)",
+          "note": "正极还原半反应，生成 OH⁻。"
+        },
+        {
+          "role": "overall_reaction",
+          "display": "2H₂(g) + O₂(g) → 2H₂O(l)",
+          "balance": "2H2(g) + O2(g) -> 2H2O(l)",
+          "note": "与酸性体系总反应相同。"
+        }
+      ]
+    },
+    {
+      "set_id": "ec_methanol_fuel_cell_acidic",
+      "domain": "electrochemistry",
+      "concept_ids": ["chem_ba7262d9a05d"],
+      "title": "酸性甲醇燃料电池",
+      "medium": "aqueous_acidic",
+      "conditions": ["酸性电解质", "甲醇在负极氧化", "氧气在正极还原"],
+      "notes": [
+        "酸性条件下甲醇的氧化产物写 CO₂，不能写 CO₃²⁻。",
+        "碱性甲醇燃料电池会生成碳酸盐，半反应必须按介质另写。"
+      ],
+      "ambiguity_notes": [
+        "实际直接甲醇燃料电池受甲醇渗透、催化剂中毒和传质影响，总反应只描述净化学变化。"
+      ],
+      "equations": [
+        {
+          "role": "anode_half_reaction",
+          "display": "CH₃OH(l) + H₂O(l) → CO₂(g) + 6H⁺(aq) + 6e⁻",
+          "balance": "CH4O(l) + H2O(l) -> CO2(g) + 6H^+(aq) + 6e^-",
+          "note": "CH₄O 是 CH₃OH 的组成式，仅用于质量守恒校验。"
+        },
+        {
+          "role": "cathode_half_reaction",
+          "display": "O₂(g) + 4H⁺(aq) + 4e⁻ → 2H₂O(l)",
+          "balance": "O2(g) + 4H^+(aq) + 4e^- -> 2H2O(l)",
+          "note": "与酸性氢氧燃料电池正极相同。"
+        },
+        {
+          "role": "overall_reaction",
+          "display": "2CH₃OH(l) + 3O₂(g) → 2CO₂(g) + 4H₂O(l)",
+          "balance": "2CH4O(l) + 3O2(g) -> 2CO2(g) + 4H2O(l)",
+          "note": "按电子守恒配平的三组反应加和。"
+        }
+      ]
+    },
+    {
+      "set_id": "ec_mg_agcl_seawater_battery",
+      "domain": "electrochemistry",
+      "concept_ids": ["chem_846778492562"],
+      "title": "Mg-AgCl 海水激活贮备电池",
+      "medium": "aqueous_seawater",
+      "conditions": ["镁为负极", "AgCl为固体正极活性物质", "海水作为电解质"],
+      "notes": [
+        "AgCl难溶，正极反应应写 AgCl(s)直接得电子，不能先写自由 Ag⁺再还原。",
+        "镁在海水中的自腐蚀是副反应，不属于理想总反应。"
+      ],
+      "ambiguity_notes": [],
+      "equations": [
+        {
+          "role": "anode_half_reaction",
+          "display": "Mg(s) → Mg²⁺(aq) + 2e⁻",
+          "balance": "Mg(s) -> Mg^2+(aq) + 2e^-",
+          "note": "镁发生氧化反应。"
+        },
+        {
+          "role": "cathode_half_reaction",
+          "display": "2AgCl(s) + 2e⁻ → 2Ag(s) + 2Cl⁻(aq)",
+          "balance": "2AgCl(s) + 2e^- -> 2Ag(s) + 2Cl^-(aq)",
+          "note": "为与负极电子数配对而等比例放大；单电子写法为 AgCl(s)+e⁻→Ag(s)+Cl⁻(aq)。"
+        },
+        {
+          "role": "overall_reaction",
+          "display": "Mg(s) + 2AgCl(s) → Mg²⁺(aq) + 2Cl⁻(aq) + 2Ag(s)",
+          "balance": "Mg(s) + 2AgCl(s) -> Mg^2+(aq) + 2Cl^-(aq) + 2Ag(s)",
+          "note": "理想电池总反应。"
+        }
+      ]
+    },
+    {
+      "set_id": "ec_zinc_manganese_cells",
+      "domain": "electrochemistry",
+      "concept_ids": ["chem_ab6bac75174e", "chem_366609ede758"],
+      "title": "普通锌锰电池与碱性锌锰电池",
+      "medium": "aqueous_paste_or_alkaline",
+      "conditions": ["普通型以 NH₄Cl 糊状电解质为主", "碱性型以 KOH 为电解质", "锌为负极，MnO₂为正极活性物质"],
+      "notes": [
+        "普通锌锰电池的教材总式是简化模型，实际产物还会受糊状电解质、放电深度和 Zn²⁺络合形式影响。",
+        "碱性体系可写 ZnO 或 Zn(OH)₂相关形式，本目录采用常见教材写法 ZnO。",
+        "两类电池的电解质不同，不能把普通型总式直接套用于碱性型。"
+      ],
+      "ambiguity_notes": [
+        "不同教材对普通锌锰电池的含氮产物和锰氧化物物相采用不同简化，引用时必须保留电池类型与电解质。"
+      ],
+      "equations": [
+        {
+          "role": "ordinary_cell_cathode",
+          "display": "2MnO₂(s) + 2NH₄⁺(aq) + 2e⁻ → Mn₂O₃(s) + 2NH₃(aq) + H₂O(l)",
+          "balance": "2MnO2(s) + 2NH4^+(aq) + 2e^- -> Mn2O3(s) + 2NH3(aq) + H2O(l)",
+          "note": "教材常见的简化正极反应。"
+        },
+        {
+          "role": "ordinary_cell_overall",
+          "display": "Zn(s) + 2MnO₂(s) + 2NH₄Cl(aq) → ZnCl₂(aq) + Mn₂O₃(s) + 2NH₃(aq) + H₂O(l)",
+          "balance": "Zn(s) + 2MnO2(s) + 2NH4Cl(aq) -> ZnCl2(aq) + Mn2O3(s) + 2NH3(aq) + H2O(l)",
+          "note": "正极反应加上锌负极反应并引入 NH₄Cl 后的简化总式。"
+        },
+        {
+          "role": "alkaline_cell_anode",
+          "display": "Zn(s) + 2OH⁻(aq) → ZnO(s) + H₂O(l) + 2e⁻",
+          "balance": "Zn(s) + 2OH^-(aq) -> ZnO(s) + H2O(l) + 2e^-",
+          "note": "碱性介质中的负极反应。"
+        },
+        {
+          "role": "alkaline_cell_cathode",
+          "display": "2MnO₂(s) + 2H₂O(l) + 2e⁻ → 2MnOOH(s) + 2OH⁻(aq)",
+          "balance": "2MnO2(s) + 2H2O(l) + 2e^- -> 2MnOOH(s) + 2OH^-(aq)",
+          "note": "MnOOH 也可写作 MnO(OH)。"
+        },
+        {
+          "role": "alkaline_cell_overall",
+          "display": "Zn(s) + 2MnO₂(s) + H₂O(l) → ZnO(s) + 2MnOOH(s)",
+          "balance": "Zn(s) + 2MnO2(s) + H2O(l) -> ZnO(s) + 2MnOOH(s)",
+          "note": "碱性锌锰电池的简化总反应。"
+        }
+      ]
+    },
+    {
+      "set_id": "ec_lead_acid_battery",
+      "domain": "electrochemistry",
+      "concept_ids": ["chem_366609ede758"],
+      "title": "铅酸蓄电池",
+      "medium": "aqueous_sulfuric_acid",
+      "conditions": ["Pb为负极", "PbO₂为正极", "稀硫酸为电解质", "放电与充电方向相反"],
+      "notes": [
+        "放电和充电不是同一方向的‘可逆箭头’笔记；应分别标明放电或充电条件。",
+        "硫酸浓度在放电时降低、充电时升高。"
+      ],
+      "ambiguity_notes": [
+        "高中题常采用总反应判断充放电方向；电极半反应中的 HSO₄⁻与 H⁺写法可随离子拆分方式不同而不同，但净反应不变。"
+      ],
+      "equations": [
+        {
+          "role": "discharge_anode",
+          "display": "Pb(s) + HSO₄⁻(aq) → PbSO₄(s) + H⁺(aq) + 2e⁻",
+          "balance": "Pb(s) + HSO4^-(aq) -> PbSO4(s) + H^+(aq) + 2e^-",
+          "note": "铅负极放电时被氧化。"
+        },
+        {
+          "role": "discharge_cathode",
+          "display": "PbO₂(s) + HSO₄⁻(aq) + 3H⁺(aq) + 2e⁻ → PbSO₄(s) + 2H₂O(l)",
+          "balance": "PbO2(s) + HSO4^-(aq) + 3H^+(aq) + 2e^- -> PbSO4(s) + 2H2O(l)",
+          "note": "PbO₂正极放电时被还原。"
+        },
+        {
+          "role": "discharge_overall",
+          "display": "Pb(s) + PbO₂(s) + 2H₂SO₄(aq) → 2PbSO₄(s) + 2H₂O(l)",
+          "balance": "Pb(s) + PbO2(s) + 2H2SO4(aq) -> 2PbSO4(s) + 2H2O(l)",
+          "note": "放电总反应。"
+        },
+        {
+          "role": "charge_overall",
+          "display": "2PbSO₄(s) + 2H₂O(l) → Pb(s) + PbO₂(s) + 2H₂SO₄(aq)",
+          "balance": "2PbSO4(s) + 2H2O(l) -> Pb(s) + PbO2(s) + 2H2SO4(aq)",
+          "note": "充电总反应，必须在外加电源条件下发生。"
+        }
+      ]
+    },
+    {
+      "set_id": "ec_cucl2_electrolysis",
+      "domain": "electrochemistry",
+      "concept_ids": ["chem_6bf5b3cabfa9", "chem_e0e20906016c"],
+      "title": "惰性电极电解氯化铜溶液",
+      "medium": "aqueous",
+      "conditions": ["惰性阳极", "CuCl₂溶液", "外加直流电源"],
+      "notes": [
+        "若阳极为活泼金属，阳极可能先发生金属溶解，不能直接套用本组反应。",
+        "电解池的阳极接电源正极，阴极接电源负极。"
+      ],
+      "ambiguity_notes": [],
+      "equations": [
+        {
+          "role": "anode_half_reaction",
+          "display": "2Cl⁻(aq) → Cl₂(g) + 2e⁻",
+          "balance": "2Cl^-(aq) -> Cl2(g) + 2e^-",
+          "note": "惰性阳极上氯离子氧化。"
+        },
+        {
+          "role": "cathode_half_reaction",
+          "display": "Cu²⁺(aq) + 2e⁻ → Cu(s)",
+          "balance": "Cu^2+(aq) + 2e^- -> Cu(s)",
+          "note": "阴极铜离子还原。"
+        },
+        {
+          "role": "overall_reaction",
+          "display": "Cu²⁺(aq) + 2Cl⁻(aq) → Cu(s) + Cl₂(g)",
+          "balance": "Cu^2+(aq) + 2Cl^-(aq) -> Cu(s) + Cl2(g)",
+          "note": "总离子方程式；电解条件写在反应条件栏，不写进物种。"
+        }
+      ]
+    },
+    {
+      "set_id": "ec_chlor_alkali",
+      "domain": "electrochemistry",
+      "concept_ids": ["chem_88cfee73d6a2"],
+      "title": "电解饱和食盐水",
+      "medium": "aqueous_concentrated_chloride",
+      "conditions": ["饱和食盐水", "惰性阳极", "外加直流电源", "工业装置通常配离子交换膜"],
+      "notes": [
+        "‘Cl⁻优先于 OH⁻’和‘H⁺优先于 Na⁺’是给定浓度与电极条件下的教学判断，不是脱离条件的绝对规律。",
+        "离子交换膜主要防止阳极生成的氯气与阴极区 OH⁻及产物混合。"
+      ],
+      "ambiguity_notes": [
+        "总式可写分子式或离子式；两者描述同一净变化，不能把 Na⁺写成实际放电物种。"
+      ],
+      "equations": [
+        {
+          "role": "anode_half_reaction",
+          "display": "2Cl⁻(aq) → Cl₂(g) + 2e⁻",
+          "balance": "2Cl^-(aq) -> Cl2(g) + 2e^-",
+          "note": "阳极氯离子氧化。"
+        },
+        {
+          "role": "cathode_half_reaction",
+          "display": "2H₂O(l) + 2e⁻ → H₂(g) + 2OH⁻(aq)",
+          "balance": "2H2O(l) + 2e^- -> H2(g) + 2OH^-(aq)",
+          "note": "水中的 H⁺得电子，留下 OH⁻。"
+        },
+        {
+          "role": "overall_ionic_reaction",
+          "display": "2Cl⁻(aq) + 2H₂O(l) → Cl₂(g) + H₂(g) + 2OH⁻(aq)",
+          "balance": "2Cl^-(aq) + 2H2O(l) -> Cl2(g) + H2(g) + 2OH^-(aq)",
+          "note": "净离子反应。"
+        },
+        {
+          "role": "overall_molecular_reaction",
+          "display": "2NaCl(aq) + 2H₂O(l) → 2NaOH(aq) + H₂(g) + Cl₂(g)",
+          "balance": "2NaCl(aq) + 2H2O(l) -> 2NaOH(aq) + H2(g) + Cl2(g)",
+          "note": "引入旁观离子 Na⁺后的分子方程式。"
+        }
+      ]
+    },
+    {
+      "set_id": "ec_copper_refining",
+      "domain": "electrochemistry",
+      "concept_ids": ["chem_498b3f0142e0", "chem_10a3f0c6bea5"],
+      "title": "电解精炼铜",
+      "medium": "aqueous_copper_sulfate",
+      "conditions": ["粗铜为阳极", "纯铜为阴极", "CuSO₄与H₂SO₄电解液", "外加直流电源"],
+      "notes": [
+        "两极主反应互为逆反应，因此不能写一个只含 Cu 的‘总化学方程式’来表达提纯。",
+        "活泼杂质溶解、不活泼杂质形成阳极泥，使电解液需要净化和补充。"
+      ],
+      "ambiguity_notes": [
+        "电解液组成、杂质种类和电流效率会改变 Cu²⁺浓度的实际变化，不能把‘浓度完全不变’写成普遍结论。"
+      ],
+      "equations": [
+        {
+          "role": "anode_half_reaction",
+          "display": "Cu(s) → Cu²⁺(aq) + 2e⁻",
+          "balance": "Cu(s) -> Cu^2+(aq) + 2e^-",
+          "note": "粗铜阳极溶解。"
+        },
+        {
+          "role": "cathode_half_reaction",
+          "display": "Cu²⁺(aq) + 2e⁻ → Cu(s)",
+          "balance": "Cu^2+(aq) + 2e^- -> Cu(s)",
+          "note": "纯铜阴极析出。"
+        }
+      ]
+    },
+    {
+      "set_id": "ec_nickel_plating",
+      "domain": "electrochemistry",
+      "concept_ids": ["chem_06d9cd422579", "chem_10a3f0c6bea5"],
+      "title": "铁件镀镍",
+      "medium": "aqueous_nickel_salt",
+      "conditions": ["镀层金属镍作阳极", "待镀铁件作阴极", "电解液含 Ni²⁺", "外加直流电源"],
+      "notes": [
+        "理想情况下阳极溶解与阴极沉积的电子数相等，镀液中 Ni²⁺浓度近似稳定。",
+        "实际电镀需控制 pH、添加剂、电流密度和副反应，不能只凭半反应判断镀层质量。"
+      ],
+      "ambiguity_notes": [
+        "若阳极钝化或发生析氧副反应，阳极溶解与阴极沉积不再严格等物质的量。"
+      ],
+      "equations": [
+        {
+          "role": "anode_half_reaction",
+          "display": "Ni(s) → Ni²⁺(aq) + 2e⁻",
+          "balance": "Ni(s) -> Ni^2+(aq) + 2e^-",
+          "note": "镍阳极溶解补充镀液中的 Ni²⁺。"
+        },
+        {
+          "role": "cathode_half_reaction",
+          "display": "Ni²⁺(aq) + 2e⁻ → Ni(s)",
+          "balance": "Ni^2+(aq) + 2e^- -> Ni(s)",
+          "note": "镍在待镀件表面还原沉积。"
+        }
+      ]
+    },
+    {
+      "set_id": "ec_molten_salts",
+      "domain": "electrochemistry",
+      "concept_ids": ["chem_421397fb025a", "chem_f46362aaea94"],
+      "title": "电解熔融氯化钠与熔融氧化铝",
+      "medium": "molten",
+      "conditions": ["必须使用熔融态电解质", "不能使用相应金属盐水溶液制备活泼金属", "电解氧化铝时加入冰晶石降低熔点"],
+      "notes": [
+        "熔融 NaCl 与水溶液电解的产物完全不同。",
+        "工业铝电解的阳极碳块会被生成的氧氧化，实际总过程还包含碳阳极消耗，不能只用理想 Al₂O₃电解式核算生产物料。",
+        "Al³⁺和 O²⁻是简化表示，熔融冰晶石体系中实际离子形态更复杂。"
+      ],
+      "ambiguity_notes": [
+        "电解熔融 MgCl₂、CaCl₂等可按同一模型改写，但电极材料与副反应需单独处理。"
+      ],
+      "equations": [
+        {
+          "role": "molten_nacl_cathode",
+          "display": "Na⁺(l) + e⁻ → Na(l)",
+          "balance": "Na^+(l) + e^- -> Na(l)",
+          "note": "阴极还原得到金属钠。"
+        },
+        {
+          "role": "molten_nacl_anode",
+          "display": "2Cl⁻(l) → Cl₂(g) + 2e⁻",
+          "balance": "2Cl^-(l) -> Cl2(g) + 2e^-",
+          "note": "阳极氧化得到氯气。"
+        },
+        {
+          "role": "molten_nacl_overall",
+          "display": "2NaCl(l) → 2Na(l) + Cl₂(g)",
+          "balance": "2NaCl(l) -> 2Na(l) + Cl2(g)",
+          "note": "熔融氯化钠电解总反应。"
+        },
+        {
+          "role": "molten_alumina_cathode",
+          "display": "Al³⁺(l) + 3e⁻ → Al(l)",
+          "balance": "Al^3+(l) + 3e^- -> Al(l)",
+          "note": "阴极还原得到铝。"
+        },
+        {
+          "role": "molten_alumina_anode",
+          "display": "2O²⁻(l) → O₂(g) + 4e⁻",
+          "balance": "2O^2-(l) -> O2(g) + 4e^-",
+          "note": "阳极氧化得到氧气；实际会与碳阳极反应。"
+        },
+        {
+          "role": "molten_alumina_overall",
+          "display": "2Al₂O₃(l) → 4Al(l) + 3O₂(g)",
+          "balance": "2Al2O3(l) -> 4Al(l) + 3O2(g)",
+          "note": "理想冰晶石助熔条件下的总反应。"
+        }
+      ]
+    },
+    {
+      "set_id": "ec_acrylonitrile_hydrodimerization",
+      "domain": "electrochemistry",
+      "concept_ids": ["chem_bc443d5d7ded"],
+      "title": "丙烯腈电还原二聚制己二腈",
+      "medium": "aqueous_electroorganic",
+      "conditions": ["阴极还原丙烯腈", "阳极氧化水", "实际体系需控制电解质、pH、电流密度和传质"],
+      "notes": [
+        "该电有机合成把阴极还原与阳极水氧化组合，总反应不是简单的丙烯腈加氢。",
+        "工业过程常使用特定支持电解质和电极表面条件，H⁺写法是简化模型。"
+      ],
+      "ambiguity_notes": [
+        "不同工艺的阳极反应和副产物不同；本组反应只取教材常见的惰性阳极水氧化模型。"
+      ],
+      "equations": [
+        {
+          "role": "cathode_half_reaction",
+          "display": "2CH₂=CHCN + 2H⁺(aq) + 2e⁻ → NC(CH₂)₄CN",
+          "balance": "2C3H3N + 2H^+(aq) + 2e^- -> C6H8N2",
+          "note": "丙烯腈在阴极二聚还原为己二腈。"
+        },
+        {
+          "role": "anode_half_reaction",
+          "display": "2H₂O(l) → O₂(g) + 4H⁺(aq) + 4e⁻",
+          "balance": "2H2O(l) -> O2(g) + 4H^+(aq) + 4e^-",
+          "note": "惰性阳极上的水氧化。"
+        },
+        {
+          "role": "overall_reaction",
+          "display": "4CH₂=CHCN + 2H₂O(l) → 2NC(CH₂)₄CN + O₂(g)",
+          "balance": "4C3H3N + 2H2O(l) -> 2C6H8N2 + O2(g)",
+          "note": "按阴极反应乘以2与阳极反应相加。"
+        }
+      ]
+    },
+    {
+      "set_id": "ec_oxygen_corrosion",
+      "domain": "electrochemistry",
+      "concept_ids": ["chem_5a9a8f632465", "chem_d78a91a9063c"],
+      "title": "钢铁吸氧腐蚀与铁锈形成",
+      "medium": "neutral_or_weakly_acidic_water_film",
+      "conditions": ["钢铁表面形成电解质水膜", "水膜溶有氧气", "铁为负极，碳等杂质为正极", "不是强酸主导的析氢腐蚀"],
+      "notes": [
+        "吸氧腐蚀的主要正极反应物是 O₂，不是 H⁺。",
+        "Fe(OH)₂、Fe(OH)₃是简化中间产物；铁锈是组成可变的水合氧化铁，不能把 Fe₂O₃·xH₂O 当作纯净物。",
+        "脱水反应 2Fe(OH)₃→Fe₂O₃+3H₂O 是理想化表达，实际形成 Fe₂O₃·xH₂O。"
+      ],
+      "ambiguity_notes": [
+        "真实腐蚀产物受湿度、氧、盐分、pH和钢成分影响，不存在对所有环境都成立的唯一锈组成。"
+      ],
+      "equations": [
+        {
+          "role": "anode_half_reaction",
+          "display": "Fe(s) → Fe²⁺(aq) + 2e⁻",
+          "balance": "Fe(s) -> Fe^2+(aq) + 2e^-",
+          "note": "铁被氧化。"
+        },
+        {
+          "role": "cathode_half_reaction",
+          "display": "O₂(g) + 2H₂O(l) + 4e⁻ → 4OH⁻(aq)",
+          "balance": "O2(g) + 2H2O(l) + 4e^- -> 4OH^-(aq)",
+          "note": "氧在正极还原。"
+        },
+        {
+          "role": "initial_overall_reaction",
+          "display": "2Fe(s) + O₂(g) + 2H₂O(l) → 2Fe(OH)₂(s)",
+          "balance": "2Fe(s) + O2(g) + 2H2O(l) -> 2Fe(OH)2(s)",
+          "note": "吸氧腐蚀的初始净反应。"
+        },
+        {
+          "role": "follow_up_oxidation",
+          "display": "4Fe(OH)₂(s) + O₂(g) + 2H₂O(l) → 4Fe(OH)₃(s)",
+          "balance": "4Fe(OH)2(s) + O2(g) + 2H2O(l) -> 4Fe(OH)3(s)",
+          "note": "Fe(OH)₂进一步被空气氧化。"
+        },
+        {
+          "role": "idealized_dehydration",
+          "display": "2Fe(OH)₃(s) → Fe₂O₃(s) + 3H₂O(l)",
+          "balance": "2Fe(OH)3(s) -> Fe2O3(s) + 3H2O(l)",
+          "note": "只用于说明脱水趋势；真实铁锈写作 Fe₂O₃·xH₂O。"
+        }
+      ]
+    },
+    {
+      "set_id": "ec_hydrogen_corrosion",
+      "domain": "electrochemistry",
+      "concept_ids": ["chem_c2dbb304f975"],
+      "title": "钢铁析氢腐蚀",
+      "medium": "sufficiently_acidic_water_film",
+      "conditions": ["酸性水膜", "铁为负极", "碳等杂质为正极", "H⁺在正极得电子生成氢气"],
+      "notes": [
+        "析氢腐蚀与吸氧腐蚀的划分取决于水膜酸度、氧分压、扩散和电极动力学，不能用单一 pH 阈值绝对切分。",
+        "在含氧酸性薄液中两套还原反应可能竞争，需具体分析主导过程。"
+      ],
+      "ambiguity_notes": [
+        "高中有题以 pH≈4.3 作为吸氧/析氢倾向的经验分界；本数据不把它写成普遍热力学常数。"
+      ],
+      "equations": [
+        {
+          "role": "anode_half_reaction",
+          "display": "Fe(s) → Fe²⁺(aq) + 2e⁻",
+          "balance": "Fe(s) -> Fe^2+(aq) + 2e^-",
+          "note": "铁被氧化。"
+        },
+        {
+          "role": "cathode_half_reaction",
+          "display": "2H⁺(aq) + 2e⁻ → H₂(g)",
+          "balance": "2H^+(aq) + 2e^- -> H2(g)",
+          "note": "酸性介质中氢离子还原。"
+        },
+        {
+          "role": "overall_reaction",
+          "display": "Fe(s) + 2H⁺(aq) → Fe²⁺(aq) + H₂(g)",
+          "balance": "Fe(s) + 2H^+(aq) -> Fe^2+(aq) + H2(g)",
+          "note": "净反应与铁直接与酸反应相同，但腐蚀电池中电子经金属内部/外电路传递。"
+        }
+      ]
+    },
+    {
+      "set_id": "ec_sacrificial_anode",
+      "domain": "electrochemistry",
+      "concept_ids": ["chem_59c2d2d32f80"],
+      "title": "锌牺牲阳极保护铁",
+      "medium": "aqueous_or_soil_electrolyte",
+      "conditions": ["锌比铁活泼并直接电连接", "被保护铁作阴极", "电解质形成离子通路"],
+      "notes": [
+        "牺牲阳极法中活泼金属锌被氧化，铁作为阴极不发生金属溶解。",
+        "被保护铁表面仍可能发生氧还原等阴极反应，不能理解为表面完全没有任何化学过程。"
+      ],
+      "ambiguity_notes": [
+        "若介质中主要还原剂不是氧，阴极反应需按实际环境重写。"
+      ],
+      "equations": [
+        {
+          "role": "sacrificial_anode_half_reaction",
+          "display": "Zn(s) → Zn²⁺(aq) + 2e⁻",
+          "balance": "Zn(s) -> Zn^2+(aq) + 2e^-",
+          "note": "锌牺牲自己被氧化。"
+        },
+        {
+          "role": "protected_cathode_half_reaction",
+          "display": "O₂(g) + 2H₂O(l) + 4e⁻ → 4OH⁻(aq)",
+          "balance": "O2(g) + 2H2O(l) + 4e^- -> 4OH^-(aq)",
+          "note": "被保护铁表面常见的氧还原反应。"
+        }
+      ]
+    },
+    {
+      "set_id": "org_alkane_combustion_and_chlorination",
+      "domain": "organic_chemistry",
+      "concept_ids": ["chem_03a3b47483d3", "chem_10fbbdc52a62"],
+      "title": "甲烷燃烧与光照氯代",
+      "medium": "gas_or_liquid_phase",
+      "conditions": ["燃烧需要点燃", "氯代需要光照引发", "氯气需过量时取代可继续"],
+      "notes": [
+        "甲烷氯代通常得到 CH₃Cl、CH₂Cl₂、CHCl₃、CCl₄和 HCl 的混合物，不能把第一个方程式当成唯一产物。",
+        "燃烧是彻底氧化，氯代是自由基取代，两者不能混为一谈。",
+        "燃烧式中的 H₂O(l)表示产物冷却至常温后的聚集状态，不表示火焰中水以液态存在。"
+      ],
+      "ambiguity_notes": [],
+      "equations": [
+        {
+          "role": "complete_combustion",
+          "display": "CH₄(g) + 2O₂(g) → CO₂(g) + 2H₂O(l)",
+          "balance": "CH4(g) + 2O2(g) -> CO2(g) + 2H2O(l)",
+          "note": "点燃条件单独标注。"
+        },
+        {
+          "role": "first_substitution_step",
+          "display": "CH₄(g) + Cl₂(g) → CH₃Cl(g) + HCl(g)",
+          "balance": "CH4(g) + Cl2(g) -> CH3Cl(g) + HCl(g)",
+          "note": "光照条件单独标注；后续取代仍可继续。"
+        }
+      ]
+    },
+    {
+      "set_id": "org_ethylene_addition",
+      "domain": "organic_chemistry",
+      "concept_ids": ["chem_5b694074e161", "chem_c2d45c50a6a6"],
+      "title": "乙烯的加成反应",
+      "medium": "gas_or_solution",
+      "conditions": ["碳碳双键打开", "不同加成试剂需要相应催化剂和温度压力"],
+      "notes": [
+        "加成反应中没有小分子副产物，所有反应物原子进入产物。",
+        "乙烯与水加成制乙醇通常需催化剂、加热和加压，不能与溴的四氯化碳溶液褪色实验混写条件。"
+      ],
+      "ambiguity_notes": [],
+      "equations": [
+        {
+          "role": "bromine_addition",
+          "display": "CH₂=CH₂(g) + Br₂ → CH₂BrCH₂Br(l)",
+          "balance": "C2H4(g) + Br2 -> C2H4Br2(l)",
+          "note": "溴可来自溴的四氯化碳溶液。"
+        },
+        {
+          "role": "hydrogen_addition",
+          "display": "CH₂=CH₂(g) + H₂(g) → CH₃CH₃(g)",
+          "balance": "C2H4(g) + H2(g) -> C2H6(g)",
+          "note": "需要催化剂和适当温度。"
+        },
+        {
+          "role": "hydrogen_chloride_addition",
+          "display": "CH₂=CH₂(g) + HCl(g) → CH₃CH₂Cl(g)",
+          "balance": "C2H4(g) + HCl(g) -> C2H5Cl(g)",
+          "note": "产物为氯乙烷。"
+        },
+        {
+          "role": "water_addition",
+          "display": "CH₂=CH₂(g) + H₂O(g) → CH₃CH₂OH(g)",
+          "balance": "C2H4(g) + H2O(g) -> C2H6O(g)",
+          "note": "工业水合需催化剂、加热和加压。"
+        }
+      ]
+    },
+    {
+      "set_id": "org_ethylene_polymerization",
+      "domain": "organic_chemistry",
+      "concept_ids": ["chem_c9ab1ec2c8a5", "chem_d4bcc5a05b87"],
+      "title": "乙烯加聚生成聚乙烯",
+      "medium": "catalytic_polymerization",
+      "conditions": ["乙烯为单体", "双键打开", "催化剂与聚合条件决定聚乙烯类型"],
+      "notes": [
+        "加聚反应没有小分子副产物，链节组成与单体相同。",
+        "高压自由基聚合与配位聚合可得到不同支化程度的聚乙烯，不能只凭一个式子判断具体牌号。"
+      ],
+      "ambiguity_notes": [
+        "聚合物端基和实际链长分布不能用单一 n 精确表示；n 是统计平均聚合度。"
+      ],
+      "equations": [
+        {
+          "role": "addition_polymerization",
+          "display": "nCH₂=CH₂ → [–CH₂–CH₂–]ₙ",
+          "note": "结构审查：无小分子副产物，链节为 C₂H₄。"
+        }
+      ]
+    },
+    {
+      "set_id": "org_addition_polymer_examples",
+      "domain": "organic_chemistry",
+      "concept_ids": ["chem_d4bcc5a05b87", "chem_c59b4b4f616a", "chem_7641251baf57"],
+      "title": "常见烯类单体加聚示例",
+      "medium": "catalytic_polymerization",
+      "conditions": ["单体含可打开的不饱和键", "聚合条件随单体与工艺改变"],
+      "notes": [
+        "加聚物的链节组成与单体的原子组成相同。",
+        "共轭二烯烃可发生1,4-加聚，也可有1,2-加聚等不同微结构，本目录只展示常见的1,4-重复单元。",
+        "共聚物的单体排列方式不唯一，不能用一个固定顺序的结构式代表所有共聚物。"
+      ],
+      "ambiguity_notes": [
+        "下列式子只说明链节组成与连接方式，不表示单一分子量或单一立体规整度。"
+      ],
+      "equations": [
+        {
+          "role": "vinyl_chloride_polymerization",
+          "display": "nCH₂=CHCl → [–CH₂–CHCl–]ₙ",
+          "note": "聚氯乙烯 PVC。"
+        },
+        {
+          "role": "styrene_polymerization",
+          "display": "nC₆H₅CH=CH₂ → [–CH(C₆H₅)–CH₂–]ₙ",
+          "note": "聚苯乙烯 PS。"
+        },
+        {
+          "role": "acrylonitrile_polymerization",
+          "display": "nCH₂=CHCN → [–CH₂–CH(CN)–]ₙ",
+          "note": "聚丙烯腈 PAN。"
+        },
+        {
+          "role": "butadiene_1_4_polymerization",
+          "display": "nCH₂=CH–CH=CH₂ → [–CH₂–CH=CH–CH₂–]ₙ",
+          "note": "1,3-丁二烯的1,4-加聚链节；顺反结构需另标。"
+        }
+      ]
+    },
+    {
+      "set_id": "org_ptfe_polymerization",
+      "domain": "organic_chemistry",
+      "concept_ids": ["chem_06c3f9a5803a", "chem_d4bcc5a05b87"],
+      "title": "四氟乙烯加聚生成聚四氟乙烯",
+      "medium": "catalytic_polymerization",
+      "conditions": ["四氟乙烯为单体", "双键打开", "聚合工艺与PTFE性能相关"],
+      "notes": [
+        "聚四氟乙烯主链为碳链，链节为 –CF₂–CF₂–。",
+        "‘塑料王’是性能描述，不是化学分类。"
+      ],
+      "ambiguity_notes": [],
+      "equations": [
+        {
+          "role": "addition_polymerization",
+          "display": "nCF₂=CF₂ → [–CF₂–CF₂–]ₙ",
+          "note": "结构审查：无小分子副产物，链节为 C₂F₄。"
+        }
+      ]
+    },
+    {
+      "set_id": "org_ethanol_reactions",
+      "domain": "organic_chemistry",
+      "concept_ids": ["chem_4f8b6d6bd5ff", "chem_6dc57c20e79b", "chem_fbaeaa4dc7af"],
+      "title": "乙醇的典型反应",
+      "medium": "gas_liquid_or_solution",
+      "conditions": ["不同反应需要不同试剂、温度与催化剂", "消去与分子间脱水由温度等条件区分"],
+      "notes": [
+        "乙醇与钠反应断裂 O–H 键，生成乙醇钠和氢气；它不是卤代烃式的亲核取代。",
+        "乙醇与 HBr 反应断裂 C–O 键，生成溴乙烷。",
+        "浓硫酸 170 ℃以分子内脱水为主，140 ℃以分子间脱水为主；‘主要’不等于绝对唯一。",
+        "催化氧化要求羟基所连碳上有可转移的 α-H，铜或银是催化剂。",
+        "脱水与燃烧式中的 H₂O(l)表示产物冷却至常温后的聚集状态；在反应温度下水以蒸气存在。"
+      ],
+      "ambiguity_notes": [
+        "温度、浓度、加料方式和反应时间都会改变脱水产物比例。"
+      ],
+      "equations": [
+        {
+          "role": "reaction_with_sodium",
+          "display": "2CH₃CH₂OH(l) + 2Na(s) → 2CH₃CH₂ONa + H₂(g)",
+          "balance": "2C2H6O(l) + 2Na(s) -> 2C2H5ONa + H2(g)",
+          "note": "乙醇钠在乙醇中以溶剂化离子存在，方程式采用教材常见写法。"
+        },
+        {
+          "role": "substitution_with_hydrogen_bromide",
+          "display": "CH₃CH₂OH + HBr → CH3CH2Br + H₂O",
+          "balance": "C2H6O + HBr -> C2H5Br + H2O",
+          "note": "需加热；产物为溴乙烷。"
+        },
+        {
+          "role": "intramolecular_dehydration",
+          "display": "CH₃CH₂OH → CH₂=CH₂(g) + H₂O(l)",
+          "balance": "C2H6O -> C2H4(g) + H2O(l)",
+          "note": "浓硫酸、约170 ℃条件下为主。"
+        },
+        {
+          "role": "intermolecular_dehydration",
+          "display": "2CH₃CH₂OH → CH₃CH₂OCH₂CH₃ + H₂O(l)",
+          "balance": "2C2H6O -> C4H10O + H2O(l)",
+          "note": "浓硫酸、约140 ℃条件下为主。"
+        },
+        {
+          "role": "complete_combustion",
+          "display": "CH₃CH₂OH(l) + 3O₂(g) → 2CO₂(g) + 3H₂O(l)",
+          "balance": "C2H6O(l) + 3O2(g) -> 2CO2(g) + 3H2O(l)",
+          "note": "点燃条件单独标注。"
+        },
+        {
+          "role": "catalytic_oxidation",
+          "display": "2CH₃CH₂OH(g) + O₂(g) → 2CH₃CHO(g) + 2H₂O(g)",
+          "balance": "2C2H6O(g) + O2(g) -> 2C2H4O(g) + 2H2O(g)",
+          "note": "铜或银催化并加热；乙醛组成式为 C₂H₄O。"
+        }
+      ]
+    },
+    {
+      "set_id": "org_haloalkane_substitution_and_elimination",
+      "domain": "organic_chemistry",
+      "concept_ids": ["chem_06dbfc94371c", "chem_ca808bd67107"],
+      "title": "溴乙烷的水解与消去",
+      "medium": "aqueous_or_ethanolic",
+      "conditions": ["NaOH水溶液并加热促进水解", "NaOH乙醇溶液并加热促进消去", "消去反应要求β-碳上有氢"],
+      "notes": [
+        "水溶液与醇溶液是反应路径选择条件，不是简单把同一个反应换个溶剂。",
+        "水解反应也可写为净离子方程式：CH₃CH₂Br + OH⁻→CH₃CH₂OH + Br⁻。"
+      ],
+      "ambiguity_notes": [
+        "强碱、温度和底物结构会影响取代与消去的竞争比例，‘水代醇消’是主导趋势而非绝对互斥。"
+      ],
+      "equations": [
+        {
+          "role": "hydrolysis_substitution",
+          "display": "CH3CH2Br + NaOH → CH₃CH₂OH + NaBr",
+          "balance": "C2H5Br + NaOH -> C2H6O + NaBr",
+          "note": "NaOH水溶液、加热条件。"
+        },
+        {
+          "role": "elimination",
+          "display": "CH3CH2Br + NaOH → CH₂=CH₂(g) + NaBr + H₂O",
+          "balance": "C2H5Br + NaOH -> C2H4(g) + NaBr + H2O",
+          "note": "NaOH乙醇溶液、加热条件；按一分子 HBr 被脱去理解。"
+        }
+      ]
+    },
+    {
+      "set_id": "org_acetaldehyde_tollens",
+      "domain": "organic_chemistry",
+      "concept_ids": ["chem_c41835a95f82"],
+      "title": "乙醛的银镜反应",
+      "medium": "aqueous_ammoniacal_alkaline",
+      "conditions": ["新制银氨溶液", "水浴加热", "试管洁净", "碱性氨性环境"],
+      "notes": [
+        "乙醛被氧化为乙酸根，在氨性溶液中以乙酸铵形式存在，不能把产物直接写成乙酸。",
+        "NH₃在反应式中不标气体逸出符号；银氨溶液久置或蒸干可生成危险银氮化物，必须现配现用。"
+      ],
+      "ambiguity_notes": [
+        "银氨配离子的书写方式在不同教材中可能简写，但必须保持 Ag 的还原和醛基的氧化关系。"
+      ],
+      "equations": [
+        {
+          "role": "silver_mirror_oxidation",
+          "display": "CH₃CHO + 2[Ag(NH₃)₂]OH → CH₃COONH₄ + 2Ag↓ + 3NH₃ + H₂O",
+          "balance": "CH3CHO + 2[Ag(NH3)2]OH -> CH3COONH4 + 2Ag + 3NH3 + H2O",
+          "note": "水浴加热条件。"
+        }
+      ]
+    },
+    {
+      "set_id": "org_acetaldehyde_copper_hydroxide",
+      "domain": "organic_chemistry",
+      "concept_ids": ["chem_33ba6bcc026f"],
+      "title": "乙醛与新制氢氧化铜悬浊液",
+      "medium": "aqueous_strongly_alkaline",
+      "conditions": ["新制 Cu(OH)₂悬浊液", "NaOH过量维持碱性", "加热"],
+      "notes": [
+        "产物是砖红色 Cu₂O，不是金属铜。",
+        "碱性条件下羧酸以乙酸钠形式存在，不能写成游离乙酸。"
+      ],
+      "ambiguity_notes": [
+        "不同教材可能把 Cu(OH)₂写成含水的简化形式，但 Cu(II)被还原为 Cu(I)的计量关系不变。"
+      ],
+      "equations": [
+        {
+          "role": "copper_two_reduction",
+          "display": "CH₃CHO + 2Cu(OH)₂ + NaOH → CH₃COONa + Cu₂O↓ + 3H₂O",
+          "balance": "CH3CHO + 2Cu(OH)2 + NaOH -> CH3COONa + Cu2O + 3H2O",
+          "note": "加热条件单独标注。"
+        }
+      ]
+    },
+    {
+      "set_id": "org_acetaldehyde_reduction",
+      "domain": "organic_chemistry",
+      "concept_ids": ["chem_e746a772e070"],
+      "title": "乙醛催化加氢",
+      "medium": "gas_or_liquid_phase",
+      "conditions": ["Ni、Pd或Pt等催化剂", "加热", "氢源充足"],
+      "notes": [
+        "C=O加氢生成醇，从有机氧化还原分类看同时属于还原反应。",
+        "羧基和普通酯基中的C=O在类似条件下通常不如醛基容易催化加氢，不能一概而论。"
+      ],
+      "ambiguity_notes": [],
+      "equations": [
+        {
+          "role": "catalytic_hydrogenation",
+          "display": "CH₃CHO + H₂ → CH₃CH₂OH",
+          "balance": "C2H4O + H2 -> C2H6O",
+          "note": "催化剂与加热条件单独标注。"
+        }
+      ]
+    },
+    {
+      "set_id": "org_acetaldehyde_hcn_addition",
+      "domain": "organic_chemistry",
+      "concept_ids": ["chem_9077ebf3f4db"],
+      "title": "乙醛与氰化氢加成",
+      "medium": "liquid_phase",
+      "conditions": ["氰化氢或氰源", "少量碱或氰离子促进亲核加成", "需在合规防护条件下操作"],
+      "notes": [
+        "产物为2-羟基丙腈，CN加到羰基碳，H加到羰基氧。",
+        "氰化物剧毒，教学数据不得生成未经安全审查的实验操作步骤。",
+        "HCN是弱酸，直接反应通常需要少量碱或CN⁻维持足够的亲核氰离子浓度；不能把条件写成任意混合。"
+      ],
+      "ambiguity_notes": [
+        "实际反应体系可能使用氰化物盐并控制pH，HCN是教材简化表示。"
+      ],
+      "equations": [
+        {
+          "role": "cyanohydrin_formation",
+          "display": "CH₃CHO + HCN → CH₃CH(OH)CN",
+          "balance": "C2H4O + HCN -> C3H5NO",
+          "note": "产物也可写为 CH₃CH(OH)CN。"
+        }
+      ]
+    },
+    {
+      "set_id": "org_acetaldehyde_oxidation",
+      "domain": "organic_chemistry",
+      "concept_ids": ["chem_31acd5d50683"],
+      "title": "乙醛催化氧化为乙酸",
+      "medium": "gas_or_liquid_phase",
+      "conditions": ["催化剂", "适当温度", "充足氧化剂"],
+      "notes": [
+        "醛基可被氧化为羧基；银镜反应和 Cu(OH)₂反应是弱氧化剂定性检验，不等同于工业催化氧化。",
+        "酸性高锰酸钾等强氧化剂可进一步氧化醛，但可能伴随碳骨架断裂，不能用一个通式涵盖所有醛。"
+      ],
+      "ambiguity_notes": [],
+      "equations": [
+        {
+          "role": "catalytic_oxidation",
+          "display": "2CH₃CHO + O₂ → 2CH₃COOH",
+          "balance": "2C2H4O + O2 -> 2C2H4O2",
+          "note": "催化剂与温度条件单独标注。"
+        }
+      ]
+    },
+    {
+      "set_id": "org_esterification",
+      "domain": "organic_chemistry",
+      "concept_ids": ["chem_0915aec28e2a", "chem_1acc79b4ffda"],
+      "title": "乙酸与乙醇酯化",
+      "medium": "liquid_phase",
+      "conditions": ["浓硫酸催化", "加热", "可逆反应", "及时分离产物可提高酯产率"],
+      "notes": [
+        "羧酸脱羟基、醇脱氢，水中的氧来自羧酸。",
+        "酯化反应是可逆的，通常使用可逆箭头；不能把浓硫酸只写成反应物。"
+      ],
+      "ambiguity_notes": [],
+      "equations": [
+        {
+          "role": "esterification",
+          "display": "CH₃COOH + CH₃CH₂OH ⇌ CH₃COOCH₂CH₃ + H₂O",
+          "balance": "C2H4O2 + C2H6O -> C4H8O2 + H2O",
+          "note": "浓硫酸、加热条件单独标注。"
+        },
+        {
+          "role": "oxygen18_tracer",
+          "display": "CH₃COOH + CH₃CH₂¹⁸OH ⇌ CH₃CO¹⁸OCH₂CH₃ + H₂O",
+          "balance": "C2H4O2 + C2H6O -> C4H8O2 + H2O",
+          "note": "质量守恒校验时忽略同位素标记；¹⁸O保留在酯中，证明醇提供酯键中的氧。"
+        }
+      ]
+    },
+    {
+      "set_id": "org_ester_hydrolysis",
+      "domain": "organic_chemistry",
+      "concept_ids": ["chem_2ea1617f9826"],
+      "title": "乙酸乙酯的水解",
+      "medium": "aqueous_acidic_or_alkaline",
+      "conditions": ["酸性水解可逆", "碱性水解不可逆并生成羧酸盐", "通常加热"],
+      "notes": [
+        "碱性条件下羧酸被中和，平衡持续向水解方向移动，因此写单向箭头。",
+        "酯的酸性水解不能写成完全反应。"
+      ],
+      "ambiguity_notes": [
+        "实际碱性水解的总反应可进一步写为净离子方程式，但分子方程式更便于展示官能团变化。"
+      ],
+      "equations": [
+        {
+          "role": "acidic_hydrolysis",
+          "display": "CH₃COOCH₂CH₃ + H₂O ⇌ CH₃COOH + CH₃CH₂OH",
+          "balance": "C4H8O2 + H2O -> C2H4O2 + C2H6O",
+          "note": "稀酸催化并加热。"
+        },
+        {
+          "role": "alkaline_hydrolysis",
+          "display": "CH₃COOCH₂CH₃ + NaOH → CH₃COONa + CH₃CH₂OH",
+          "balance": "C4H8O2 + NaOH -> C2H3O2Na + C2H6O",
+          "note": "碱性水解通常写单向反应。"
+        }
+      ]
+    },
+    {
+      "set_id": "org_fat_saponification",
+      "domain": "organic_chemistry",
+      "concept_ids": ["chem_3edb73ad71e8"],
+      "title": "油脂皂化",
+      "medium": "aqueous_alkaline",
+      "conditions": ["油脂与过量强碱共热", "天然油脂常为混合甘油三酯"],
+      "notes": [
+        "通式中的 R、R′、R″可相同或不同；天然油脂通常不是单一化合物。",
+        "皂化是酯的碱性水解，产物为甘油和高级脂肪酸盐。"
+      ],
+      "ambiguity_notes": [
+        "使用单一 R 的式子只表达反应类型，不表示某种具体油脂的精确组成。"
+      ],
+      "equations": [
+        {
+          "role": "saponification",
+          "display": "(RCOO)₃C₃H₅ + 3NaOH → C₃H₅(OH)₃ + 3RCOONa",
+          "note": "结构审查：R代表高级脂肪酸烃基；混合油脂可分别写R、R′、R″。"
+        }
+      ]
+    },
+    {
+      "set_id": "org_phenol_acidic_reactions",
+      "domain": "organic_chemistry",
+      "concept_ids": ["chem_5392a1abd9f0"],
+      "title": "苯酚的弱酸性反应",
+      "medium": "aqueous",
+      "conditions": ["苯酚微溶于水，可溶于NaOH溶液", "通入CO₂可使苯酚重新析出", "苯酚酸性弱于H₂CO₃"],
+      "notes": [
+        "苯酚钠与CO₂水溶液反应生成NaHCO₃，不是Na₂CO₃；这体现苯酚酸性弱于碳酸但强于HCO₃⁻。",
+        "不能用苯酚使石蕊明显变红来判断其酸性强弱。"
+      ],
+      "ambiguity_notes": [
+        "CO₂用量和体系条件会影响产物分布，但教材常以生成NaHCO₃作为判据。"
+      ],
+      "equations": [
+        {
+          "role": "reaction_with_sodium_hydroxide",
+          "display": "C₆H₅OH + NaOH → C₆H₅ONa + H₂O",
+          "balance": "C6H6O + NaOH -> C6H5ONa + H2O",
+          "note": "苯酚表现为弱酸。"
+        },
+        {
+          "role": "carbon_dioxide_displacement",
+          "display": "C₆H₅ONa + CO₂ + H₂O → C₆H₅OH + NaHCO₃",
+          "balance": "C6H5ONa + CO2 + H2O -> C6H6O + NaHCO3",
+          "note": "强酸制弱酸，生成碳酸氢钠。"
+        }
+      ]
+    },
+    {
+      "set_id": "org_glucose_redox",
+      "domain": "organic_chemistry",
+      "concept_ids": ["chem_7282b5519920", "chem_f43d0b05cc62", "chem_c4827dd0bf79"],
+      "title": "葡萄糖的还原性与生物氧化",
+      "medium": "aqueous_alkaline_or_enzymatic",
+      "conditions": ["银镜反应需新制银氨溶液与水浴加热", "Cu(OH)₂反应需新制悬浊液、碱性和加热", "生物氧化需酶催化"],
+      "notes": [
+        "葡萄糖开链结构含醛基，但水溶液中主要以环状半缩醛存在；还原性与开链/环状平衡和氧化条件有关。",
+        "银镜反应和Cu(OH)₂反应只用于定性检验还原糖，不能据此给出葡萄糖的完整定量组成。",
+        "生物氧化是分步酶促过程，总式只表示始态、终态和总化学计量。"
+      ],
+      "ambiguity_notes": [
+        "果糖也能被某些碱性弱氧化剂氧化，不能把所有‘无游离醛基’的糖都判为绝对非还原糖。"
+      ],
+      "equations": [
+        {
+          "role": "tollens_oxidation",
+          "display": "HOCH₂(CHOH)₄CHO + 2[Ag(NH₃)₂]OH → HOCH₂(CHOH)₄COONH₄ + 2Ag↓ + 3NH₃ + H₂O",
+      "balance": "C6H12O6 + 2[Ag(NH3)2]OH -> C6H15NO7 + 2Ag + 3NH3 + H2O",
+          "note": "产物为葡萄糖酸铵的简化结构式。"
+        },
+        {
+          "role": "copper_two_oxidation",
+          "display": "HOCH₂(CHOH)₄CHO + 2Cu(OH)₂ + NaOH → HOCH₂(CHOH)₄COONa + Cu₂O↓ + 3H₂O",
+          "balance": "C6H12O6 + 2Cu(OH)2 + NaOH -> C6H11O7Na + Cu2O + 3H2O",
+          "note": "产物为葡萄糖酸钠的简化结构式。"
+        },
+        {
+          "role": "biological_oxidation",
+      "display": "C₆H₁₂O₆(aq) + 6O₂(g) → 6CO₂(g) + 6H₂O(l)",
+      "balance": "C6H12O6(aq) + 6O2(g) -> 6CO2(g) + 6H2O(l)",
+      "note": "细胞内的葡萄糖处于水溶液环境；总式表示酶催化分步氧化的始态、终态和总计量。"
+        }
+      ]
+    },
+    {
+      "set_id": "org_glucose_fermentation",
+      "domain": "organic_chemistry",
+      "concept_ids": ["chem_281f274d9c6c"],
+      "title": "葡萄糖发酵生成乙醇",
+      "medium": "aqueous_enzymatic",
+      "conditions": ["酵母等微生物酶催化", "无氧或低氧发酵条件", "实际发酵还产生少量其他代谢产物"],
+      "notes": [
+        "淀粉不能直接被酵母高效发酵，必须先水解为葡萄糖等可发酵糖。",
+        "总式不表示ATP生成、菌体生长和副产物分布。"
+      ],
+      "ambiguity_notes": [],
+      "equations": [
+        {
+          "role": "alcoholic_fermentation",
+          "display": "C₆H₁₂O₆(aq) → 2CH₃CH₂OH(aq) + 2CO₂(g)",
+          "balance": "C6H12O6(aq) -> 2C2H6O(aq) + 2CO2(g)",
+          "note": "酶催化条件单独标注。"
+        }
+      ]
+    },
+    {
+      "set_id": "org_sucrose_hydrolysis",
+      "domain": "organic_chemistry",
+      "concept_ids": ["chem_771014216a08", "chem_8d879aff732f"],
+      "title": "蔗糖水解",
+      "medium": "aqueous_acidic_or_enzymatic",
+      "conditions": ["稀酸或蔗糖酶催化", "加热可加速酸催化水解", "水解产物为葡萄糖和果糖"],
+      "notes": [
+        "蔗糖是非还原性二糖，水解后生成两种单糖，产物混合液具有还原性。",
+        "葡萄糖和果糖互为同分异构体，分子式相同但结构不同。"
+      ],
+      "ambiguity_notes": [],
+      "equations": [
+        {
+          "role": "hydrolysis",
+          "display": "C₁₂H₂₂O₁₁ + H₂O → C₆H₁₂O₆（葡萄糖） + C₆H₁₂O₆（果糖）",
+          "balance": "C12H22O11 + H2O -> C6H12O6 + C6H12O6",
+          "note": "稀酸或酶催化。" 
+        }
+      ]
+    },
+    {
+      "set_id": "org_maltose_lactose_hydrolysis",
+      "domain": "organic_chemistry",
+      "concept_ids": ["chem_b0e987ddb2c3", "chem_8d879aff732f", "chem_e57e0e31aa28"],
+      "title": "麦芽糖与乳糖水解",
+      "medium": "aqueous_acidic_or_enzymatic",
+      "conditions": ["稀酸或相应酶催化", "麦芽糖生成两分子葡萄糖", "乳糖生成葡萄糖和半乳糖"],
+      "notes": [
+        "麦芽糖和乳糖都是还原性二糖，但水解产物不同。",
+        "乳糖不耐受与乳糖酶不足有关，不等于乳糖本身有毒。"
+      ],
+      "ambiguity_notes": [],
+      "equations": [
+        {
+          "role": "maltose_hydrolysis",
+          "display": "C₁₂H₂₂O₁₁ + H₂O → 2C₆H₁₂O₆",
+          "balance": "C12H22O11 + H2O -> 2C6H12O6",
+          "note": "麦芽糖完全水解生成两分子葡萄糖。"
+        },
+        {
+          "role": "lactose_hydrolysis",
+          "display": "C₁₂H₂₂O₁₁ + H₂O → C₆H₁₂O₆（葡萄糖） + C₆H₁₂O₆（半乳糖）",
+          "balance": "C12H22O11 + H2O -> C6H12O6 + C6H12O6",
+          "note": "两种单糖互为同分异构体。"
+        }
+      ]
+    },
+    {
+      "set_id": "org_polysaccharide_hydrolysis",
+      "domain": "organic_chemistry",
+      "concept_ids": ["chem_69083d921787", "chem_9359a62ae14f", "chem_b1e9b5080803", "chem_8d879aff732f"],
+      "title": "淀粉与纤维素的完全水解",
+      "medium": "aqueous_acidic_or_enzymatic",
+      "conditions": ["淀粉可用稀酸或淀粉酶催化水解", "纤维素通常需较强酸并加热，或使用纤维素酶", "完全水解最终产物均为葡萄糖"],
+      "notes": [
+        "教材常写 (C₆H₁₀O₅)ₙ + nH₂O→nC₆H₁₂O₆；若严格保留聚合物端基，缩合/水解水分子数应为 n−1。高中计算通常按完全水解的计量近似使用 n。",
+        "纤维素水解条件不能简化成‘所有情况下都用稀硫酸’；较强酸、加热和脱水副反应必须区分。",
+        "水解程度检验需先中和酸，再用碘水、银氨溶液或新制Cu(OH)₂分别判断淀粉残留和还原糖生成。"
+      ],
+      "ambiguity_notes": [
+        "不同教材对糖苷键数量和端基的简化程度不同；n为统计平均聚合度，实际聚合物存在分布。"
+      ],
+      "equations": [
+        {
+          "role": "starch_complete_hydrolysis",
+          "display": "(C₆H₁₀O₅)ₙ + nH₂O → nC₆H₁₂O₆",
+          "note": "结构审查：高中常用完全水解计量式；严格端基守恒为 (n−1)H₂O。"
+        },
+        {
+          "role": "cellulose_complete_hydrolysis",
+          "display": "(C₆H₁₀O₅)ₙ + nH₂O → nC₆H₁₂O₆",
+          "note": "结构审查：通常需较强酸并加热或纤维素酶；严格端基守恒为 (n−1)H₂O。"
+        }
+      ]
+    },
+    {
+      "set_id": "org_amino_acid_neutralization",
+      "domain": "organic_chemistry",
+      "concept_ids": ["chem_3b12113d2d7a"],
+      "title": "氨基酸的两性反应",
+      "medium": "aqueous",
+      "conditions": ["氨基酸同时含氨基和羧基", "强酸中氨基质子化", "强碱中羧基质子解离"],
+      "notes": [
+        "水溶液中氨基酸常以内盐/两性离子形式存在；下列净反应强调加酸、加碱后的主要离子形态。",
+        "以甘氨酸为例，R基为H；其他α-氨基酸保持同样的酸碱官能团关系。"
+      ],
+      "ambiguity_notes": [
+        "质子化位点和电荷形式随pH变化，不能把某一pH下的结构当作所有溶液中的唯一形态。"
+      ],
+      "equations": [
+        {
+          "role": "reaction_with_acid",
+      "display": "H₂NCH₂COOH + HCl → [H₃N⁺CH₂COOH]Cl⁻",
+      "balance": "H2NCH2COOH + HCl -> [H3NCH2COOH]^+ + Cl^-",
+      "note": "氨基质子化形成可电离的铵盐；净电荷和原子数均守恒。"
+        },
+        {
+          "role": "reaction_with_base",
+          "display": "H₂NCH₂COOH + NaOH → H₂NCH₂COONa + H₂O",
+          "balance": "H2NCH2COOH + NaOH -> H2NCH2COONa + H2O",
+          "note": "羧基被中和为羧酸盐。"
+        }
+      ]
+    },
+    {
+      "set_id": "org_peptide_bond_formation",
+      "domain": "organic_chemistry",
+      "concept_ids": ["chem_a0783f6fb3f2"],
+      "title": "甘氨酸缩合形成二肽",
+      "medium": "aqueous_or_enzymatic",
+      "conditions": ["一个氨基酸的羧基与另一个氨基酸的氨基缩合", "生成肽键并脱去一分子水", "生物体内由酶和能量偶联完成"],
+      "notes": [
+        "二肽产物可有不同氨基酸顺序，顺序不同则结构不同。",
+        "肽键为 –CO–NH–，蛋白质水解时该键断裂。"
+      ],
+      "ambiguity_notes": [
+        "两个不同氨基酸缩合可得到两种二肽；本式用两个相同甘氨酸，产物唯一。"
+      ],
+      "equations": [
+        {
+          "role": "dipeptide_formation",
+          "display": "2H₂NCH₂COOH → H₂NCH₂CONHCH₂COOH + H₂O",
+          "balance": "2H2NCH2COOH -> H2NCH2CONHCH2COOH + H2O",
+          "note": "脱水缩合形成肽键。"
+        }
+      ]
+    },
+    {
+      "set_id": "org_protein_hydrolysis_scheme",
+      "domain": "organic_chemistry",
+      "concept_ids": ["chem_5c942dc3cdca", "chem_37acd0aef973"],
+      "title": "蛋白质肽键水解的结构式表示",
+      "medium": "aqueous_acidic_alkaline_or_enzymatic",
+      "conditions": ["酸、碱或酶催化", "肽键断裂", "最终产物为氨基酸"],
+      "notes": [
+        "蛋白质是多种氨基酸残基的聚合物，不能用单一分子式写出精确总反应。",
+        "不同肽键水解速率不同，体内水解通常由蛋白酶分步完成。"
+      ],
+      "ambiguity_notes": [
+        "下列是结构片段反应，不是可配平的单一分子方程式。"
+      ],
+      "equations": [
+        {
+          "role": "peptide_bond_hydrolysis_scheme",
+          "display": "—CO—NH— + H₂O → —COOH + H₂N—",
+          "note": "结构审查：表示肽键断裂，不表示具体蛋白质的化学计量。"
+        }
+      ]
+    },
+    {
+      "set_id": "org_pet_condensation",
+      "domain": "organic_chemistry",
+      "concept_ids": ["chem_86b68c33b8b2", "chem_b10364e7421f"],
+      "title": "对苯二甲酸与乙二醇缩聚生成PET",
+      "medium": "melt_polycondensation",
+      "conditions": ["对苯二甲酸与乙二醇缩聚", "催化剂", "加热并逐步移除水或小分子副产物"],
+      "notes": [
+        "聚合物端基决定严格的小分子计量；教材常把端基省略并简写为 n 或 (2n−1)。",
+        "PET的链节不是两个单体质量的简单相加，已脱去水。"
+      ],
+      "ambiguity_notes": [
+        "不同教材对端基和H₂O系数的写法可能不同；本目录给出保留端基的严格形式。"
+      ],
+      "equations": [
+        {
+          "role": "polycondensation",
+          "display": "nHOOC–C₆H₄–COOH + nHO–CH₂CH₂–OH → H–[OOC–C₆H₄–COO–CH₂CH₂–O]ₙ–H + (2n−1)H₂O",
+          "note": "结构审查：对苯二甲酸与乙二醇的端基守恒写法。"
+        }
+      ]
+    },
+    {
+      "set_id": "org_nylon66_condensation",
+      "domain": "organic_chemistry",
+      "concept_ids": ["chem_a4bc485e1e8f", "chem_b10364e7421f"],
+      "title": "己二胺与己二酸缩聚生成锦纶66",
+      "medium": "melt_polycondensation",
+      "conditions": ["己二胺与己二酸缩聚", "加热", "移除水促进缩聚"],
+      "notes": [
+        "锦纶66的名称来自两种单体各含6个碳，不是聚合度66。",
+        "主链重复单元含酰胺键，不是酯键。"
+      ],
+      "ambiguity_notes": [
+        "端基与小分子系数取决于表示方式；本式保留端基给出严格计量。"
+      ],
+      "equations": [
+        {
+          "role": "polycondensation",
+          "display": "nH₂N–(CH₂)₆–NH₂ + nHOOC–(CH₂)₄–COOH → H–[HN–(CH₂)₆–NHCO–(CH₂)₄–CO]ₙ–OH + (2n−1)H₂O",
+          "note": "结构审查：己二胺与己二酸的端基守恒写法。"
+        }
+      ]
+    },
+    {
+      "set_id": "org_nylon6_condensation",
+      "domain": "organic_chemistry",
+      "concept_ids": ["chem_a4bc485e1e8f"],
+      "title": "6-氨基己酸缩聚理解锦纶6",
+      "medium": "melt_polycondensation",
+      "conditions": ["6-氨基己酸自缩聚", "加热并移除水", "工业上也可由己内酰胺开环聚合"],
+      "notes": [
+        "6-氨基己酸缩聚与己内酰胺开环聚合是不同反应路径，不能混写成一个方程式。",
+        "锦纶6和锦纶66的单体与重复单元不同。"
+      ],
+      "ambiguity_notes": [
+        "用6-氨基己酸写缩聚是结构理解模型；工业己内酰胺路线不生成相同计量的小分子水。"
+      ],
+      "equations": [
+        {
+          "role": "self_polycondensation",
+          "display": "nH₂N–(CH₂)₅–COOH → H–[HN–(CH₂)₅–CO]ₙ–OH + (n−1)H₂O",
+          "note": "结构审查：6-氨基己酸自缩聚的端基守恒写法。"
+        }
+      ]
+    },
+    {
+      "set_id": "org_cellulose_nitration",
+      "domain": "organic_chemistry",
+      "concept_ids": ["chem_3d58dc25dfa5"],
+      "title": "纤维素硝酸酯的酯化",
+      "medium": "heterogeneous_liquid_phase",
+      "conditions": ["纤维素羟基与硝酸/硫酸混酸反应", "控制温度与反应时间", "取代度可小于3"],
+      "notes": [
+        "下列为完全酯化的理想计量式；实际产物取代度可变。",
+        "纤维素硝酸酯不是‘硝基化合物’，而是硝酸酯。"
+      ],
+      "ambiguity_notes": [
+        "不同取代度产物的分子式与用途不同，不能用一个式子代表所有硝酸纤维。"
+      ],
+      "equations": [
+        {
+          "role": "complete_nitration",
+          "display": "[C₆H₇O₂(OH)₃]ₙ + 3nHNO₃ → [C₆H₇O₂(ONO₂)₃]ₙ + 3nH₂O",
+          "note": "结构审查：完全酯化模型，硫酸作催化剂和脱水剂。"
+        }
+      ]
+    },
+    {
+      "set_id": "org_aspirin_synthesis",
+      "domain": "organic_chemistry",
+      "concept_ids": ["chem_6a00b3da941c"],
+      "title": "水杨酸与乙酸酐合成阿司匹林",
+      "medium": "liquid_phase",
+      "conditions": ["水杨酸与乙酸酐", "酸催化", "加热", "控制副反应和产物纯化"],
+      "notes": [
+        "使用乙酸酐比使用乙酸更有利于提高乙酰化程度和产率。",
+        "阿司匹林是乙酰水杨酸，结构中保留羧基，同时酚羟基被乙酰化。"
+      ],
+      "ambiguity_notes": [
+        "水杨酸与乙酸酐的计量、催化剂和温度会影响杂质与收率，本式只表示主反应。"
+      ],
+      "equations": [
+        {
+          "role": "acetylation",
+          "display": "C₆H₄(OH)(COOH) + (CH₃CO)₂O → C₆H₄(OCOCH₃)(COOH) + CH₃COOH",
+          "balance": "C6H4(OH)(COOH) + (CH3CO)2O -> C6H4(OCOCH3)(COOH) + CH3COOH",
+          "note": "以邻羟基苯甲酸表示水杨酸。"
+        }
+      ]
+    }
+  ]
+}
